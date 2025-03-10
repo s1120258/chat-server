@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
     chatServer.startServer(12345);
 
 	RedisManager redisManager;
-    //redisManager.connectToRedis();
+    redisManager.connectToRedis();
+	redisManager.subscribeToChannel("chat");
 
     return a.exec();
 }

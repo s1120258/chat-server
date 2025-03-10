@@ -18,3 +18,27 @@ void RedisManager::connectToRedis()
         std::cerr << "Redis Error: " << e.what() << std::endl;
     }
 }
+
+void RedisManager::publishMessage(const QString& channel, const QString& message)
+{
+	try {
+		redis.publish(channel.toStdString(), message.toStdString());
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Redis Error: " << e.what() << std::endl;
+	}
+}
+
+void RedisManager::subscribeToChannel(const QString& channel)
+{
+	try {
+		auto subscriber = redis.subscriber();
+		subscriber.on_message([this](const std::string& channel, const std::string& message) {
+			emit messageReceived(QString::fromStdString(channel), QString::fromStdString(message));
+			});
+		subscriber.subscribe(channel.toStdString());
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Redis Error: " << e.what() << std::endl;
+	}
+}
