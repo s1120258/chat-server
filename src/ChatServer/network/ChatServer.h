@@ -10,6 +10,14 @@ class ChatServer : public QTcpServer {
 
 public:
     ChatServer(QObject* parent = nullptr);
+
+    void startServer(quint16 port);
+
+protected:
+    void incomingConnection(qintptr socketDescriptor) override;
+
+private:
+    QList<ChatClientHandler*> clients;
 };
 
 #endif // CHATSERVER_H

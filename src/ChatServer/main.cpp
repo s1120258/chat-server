@@ -34,11 +34,10 @@ int main(int argc, char *argv[])
 	auth.createUserTable();
 
     ChatServer chatServer;
-    //chatServer.startServer(12345);
+    chatServer.startServer(12345);
 
 	RedisManager redisManager;
     //redisManager.connectToRedis();
-	//redisManager.subscribeToChannel("chat");
 
     return a.exec();
 }
