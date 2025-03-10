@@ -2,17 +2,16 @@
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
 #include <QDebug>
+#include "auth/UserAuth.h"
+#include "network/ChatServer.h"
+#include "redis/RedisManager.h"
 
-#include <sw/redis++/redis++.h>
-#include <iostream>
-
-void connectToPostgreSQL() {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
-
-    db.setHostName("localhost");  // Use your PostgreSQL host
-    db.setDatabaseName("chatdb"); // Your database name
-    db.setUserName("chatuser");   // Your username
-    db.setPassword("chatpassword"); // Your password
+void connectToPostgreSQL(QSqlDatabase& db) {
+    db = QSqlDatabase::addDatabase("QPSQL");
+    db.setHostName("localhost");
+    db.setDatabaseName("chatdb");
+    db.setUserName("chatuser");
+    db.setPassword("chatpassword");
     db.setPort(5432); // Default PostgreSQL port
 
     if (!db.open()) {
@@ -23,26 +22,23 @@ void connectToPostgreSQL() {
     }
 }
 
-void connectToRedis() {
-    try {
-        auto redis = sw::redis::Redis("tcp://127.0.0.1:6379");
-        redis.set("test_key", "Hello, Redis!");
-        auto val = redis.get("test_key");
-        if (val) {
-            std::cout << "Redis Value: " << *val << std::endl;
-        }
-    }
-    catch (const std::exception& e) {
-        std::cerr << "Redis Error: " << e.what() << std::endl;
-    }
-}
-
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    //connectToPostgreSQL();
-    connectToRedis();
+    QSqlDatabase db;
+    connectToPostgreSQL(db);
+
+	UserAuth auth(db);
+    //auth.deleteUserTable();
+	auth.createUserTable();
+
+    ChatServer chatServer;
+    //chatServer.startServer(12345);
+
+	RedisManager redisManager;
+    //redisManager.connectToRedis();
+	//redisManager.subscribeToChannel("chat");
 
     return a.exec();
 }
