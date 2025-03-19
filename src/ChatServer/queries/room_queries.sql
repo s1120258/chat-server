@@ -19,3 +19,15 @@ CREATE_ROOM_TABLE =
 -- Delete rooms table
 DELETE_ROOM_TABLE = 
     DROP TABLE IF EXISTS rooms;
+
+-- Create room
+CREATE_ROOM = 
+    INSERT INTO rooms (name) VALUES (:name)
+
+-- Join room
+JOIN_ROOM = 
+    INSERT INTO user_rooms (user_id, room_id) VALUES (:user_id, :room_id)
+
+-- Leave room
+LEAVE_ROOM = 
+    DELETE FROM user_rooms WHERE user_id = :user_id AND room_id = :room_id

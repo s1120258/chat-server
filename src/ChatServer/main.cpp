@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
     //auth.deleteUserTable();
 	auth.createUserTable();
 
-    ChatServer chatServer;
-    chatServer.createRoomsTable(db);
+    ChatServer chatServer(db);
+    chatServer.createRoomsTable();
     chatServer.startServer(12345);
 
 	RedisManager redisManager;

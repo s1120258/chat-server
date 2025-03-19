@@ -38,8 +38,8 @@ void UserAuth::createUserTable() {
 
 void UserAuth::deleteUserTable() {
     QSqlQuery query(m_db);
-    QString deleteTableQuery = DbUtils::loadQueryFromFile("DELETE_USER_TABLE", USER_QUERY_FILE);
-    if (deleteTableQuery.isEmpty() || !query.exec(deleteTableQuery)) {
+    QString queryStr = DbUtils::loadQueryFromFile("DELETE_USER_TABLE", USER_QUERY_FILE);
+    if (queryStr.isEmpty() || !query.exec(queryStr)) {
         qDebug() << "Failed to delete table:" << query.lastError().text();
         return;
     }
@@ -50,12 +50,12 @@ void UserAuth::deleteUserTable() {
 bool UserAuth::registerUser(const QString& username, const QString& password)
 {
     QSqlQuery query(m_db);
-    QString registerUserQuery = DbUtils::loadQueryFromFile("REGISTER_USER", USER_QUERY_FILE);
-    if (registerUserQuery.isEmpty()) {
+    QString queryStr = DbUtils::loadQueryFromFile("REGISTER_USER", USER_QUERY_FILE);
+    if (queryStr.isEmpty()) {
         return false;
     }
 
-    query.prepare(registerUserQuery);
+    query.prepare(queryStr);
     query.bindValue(":username", username);
     query.bindValue(":password_hash", hashPassword(password));
 
@@ -69,12 +69,12 @@ bool UserAuth::registerUser(const QString& username, const QString& password)
 
 bool UserAuth::authenticateUser(const QString& username, const QString& password) {
     QSqlQuery query(m_db);
-    QString authenticateUserQuery = DbUtils::loadQueryFromFile("AUTHENTICATE_USER", USER_QUERY_FILE);
-    if (authenticateUserQuery.isEmpty()) {
+    QString queryStr = DbUtils::loadQueryFromFile("AUTHENTICATE_USER", USER_QUERY_FILE);
+    if (queryStr.isEmpty()) {
         return false;
     }
 
-    query.prepare(authenticateUserQuery);
+    query.prepare(queryStr);
     query.bindValue(":username", username);
 
     if (!query.exec()) {
