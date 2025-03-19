@@ -15,6 +15,10 @@ public:
     void publishMessage(const QString& channel, const QString& message);
     void subscribeToChannel(const QString& channel);
 
+    void userOnline(int userId);
+    void userOffline(int userId);
+    bool isUserOnline(int userId);
+
 signals:
     void messageReceived(const QString& channel, const QString& message);
 

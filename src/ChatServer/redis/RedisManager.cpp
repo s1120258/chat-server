@@ -42,3 +42,31 @@ void RedisManager::subscribeToChannel(const QString& channel)
 		std::cerr << "Redis Error: " << e.what() << std::endl;
 	}
 }
+
+void RedisManager::userOnline(int userId) {
+    try {
+        redis.sadd("online_users", std::to_string(userId));
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Redis Error: " << e.what() << std::endl;
+    }
+}
+
+void RedisManager::userOffline(int userId) {
+    try {
+        redis.srem("online_users", std::to_string(userId));
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Redis Error: " << e.what() << std::endl;
+    }
+}
+
+bool RedisManager::isUserOnline(int userId) {
+    try {
+        return redis.sismember("online_users", std::to_string(userId));
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Redis Error: " << e.what() << std::endl;
+        return false;
+    }
+}
