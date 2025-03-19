@@ -1,17 +1,19 @@
 #ifndef USERAUTH_H
 #define USERAUTH_H
 
-#include <QtSql/QSqlDatabase>
 #include <QString>
+
+class QSqlDatabase;
 
 class UserAuth {
 public:
     UserAuth(QSqlDatabase& db);
 
-	bool createUserTable();
+	void createUserTable();
+    void deleteUserTable();
+
     bool registerUser(const QString& username, const QString& password);
     bool authenticateUser(const QString& username, const QString& password);
-    bool deleteUserTable();
 
 private:
     QSqlDatabase& m_db;

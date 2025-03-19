@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 	auth.createUserTable();
 
     ChatServer chatServer;
+    chatServer.createRoomsTable(db);
     chatServer.startServer(12345);
 
 	RedisManager redisManager;

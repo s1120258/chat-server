@@ -121,14 +121,18 @@
     <ClCompile Include="network\ChatClientHandler.cpp" />
     <ClCompile Include="network\ChatServer.cpp" />
     <ClCompile Include="redis\RedisManager.cpp" />
+    <ClCompile Include="utils\DbUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="auth\UserAuth.h" />
+    <ClInclude Include="utils\DbUtils.h" />
     <QtMoc Include="network\ChatClientHandler.h" />
     <QtMoc Include="network\ChatServer.h" />
     <QtMoc Include="redis\RedisManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="queries\message_queries.sql" />
+    <None Include="queries\room_queries.sql" />
     <None Include="queries\user_queries.sql" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
