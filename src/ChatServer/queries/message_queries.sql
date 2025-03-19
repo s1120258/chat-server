@@ -21,3 +21,11 @@ CREATE_MESSAGE_TABLE =
 -- Delete messages table
 DELETE_MESSAGE_TABLE = 
     DROP TABLE IF EXISTS messages;
+
+-- Fetch messages
+FETCH_MESSAGES = 
+    SELECT m.message, m.created_at, u.username 
+    FROM messages m
+    JOIN users u ON m.user_id = u.id
+    WHERE m.room_id = :room_id
+    ORDER BY m.created_at ASC

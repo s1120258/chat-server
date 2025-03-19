@@ -21,6 +21,15 @@ void ChatServer::startServer(quint16 port) {
     }
 }
 
+void ChatServer::incomingConnection(qintptr socketDescriptor) {
+    ChatClientHandler* clientHandler = new ChatClientHandler(socketDescriptor, this);
+    clients.append(clientHandler);
+    connect(clientHandler, &ChatClientHandler::disconnected, this, [this, clientHandler]() {
+        clients.removeAll(clientHandler);
+        clientHandler->deleteLater();
+        });
+}
+
 void ChatServer::createRoomsTable()
 {
     QSqlQuery query(m_db);
@@ -119,11 +128,30 @@ bool ChatServer::leaveRoom(int userId, int roomId)
     return true;
 }
 
-void ChatServer::incomingConnection(qintptr socketDescriptor) {
-    ChatClientHandler* clientHandler = new ChatClientHandler(socketDescriptor, this);
-    clients.append(clientHandler);
-    connect(clientHandler, &ChatClientHandler::disconnected, this, [this, clientHandler]() {
-        clients.removeAll(clientHandler);
-        clientHandler->deleteLater();
-    });
+QVector<QVariantMap> ChatServer::fetchMessages(int roomId)
+{
+    QSqlQuery query(m_db);
+
+    QString queryStr = DbUtils::loadQueryFromFile("FETCH_MESSAGES", MESSAGE_QUERY_FILE);
+	if (queryStr.isEmpty()) {
+		return {};
+    }
+
+    query.prepare(queryStr);
+    query.bindValue(":room_id", roomId);
+
+    if (!query.exec()) {
+        qDebug() << "Failed to fetch messages:" << query.lastError().text();
+        return {};
+    }
+
+    QVector<QVariantMap> messages;
+    while (query.next()) {
+        QVariantMap message;
+        message["message"] = query.value("message");
+        message["created_at"] = query.value("created_at");
+        message["username"] = query.value("username");
+        messages.append(message);
+    }
+    return messages;
 }

@@ -4,6 +4,8 @@
 #include "ChatClientHandler.h"
 #include <QTcpServer>
 #include <QList>
+#include <QVector>
+#include <QVariantMap>
 
 class QSqlDatabase;
 
@@ -21,6 +23,8 @@ public:
     bool createRoom(const QString& roomName);
     bool joinRoom(int userId, int roomId);
     bool leaveRoom(int userId, int roomId);
+
+    QVector<QVariantMap> fetchMessages(int roomId);
 
 protected:
     void incomingConnection(qintptr socketDescriptor) override;
