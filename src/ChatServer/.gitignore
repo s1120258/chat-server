@@ -9,6 +9,9 @@ build
 # Database
 *.db
 
+# Environmental Variables
+.env
+
 # Prerequisites
 *.d
 

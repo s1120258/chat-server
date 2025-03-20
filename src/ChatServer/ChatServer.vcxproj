@@ -126,6 +126,7 @@
   <ItemGroup>
     <ClInclude Include="auth\UserAuth.h" />
     <ClInclude Include="utils\DbUtils.h" />
+    <ClInclude Include="utils\env_loader.h" />
     <QtMoc Include="network\ChatClientHandler.h" />
     <QtMoc Include="network\ChatServer.h" />
     <QtMoc Include="redis\RedisManager.h" />

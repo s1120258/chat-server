@@ -1,4 +1,5 @@
 #include "DbUtils.h"
+#include "env_loader.h"
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
 #include <QFile>
@@ -6,6 +7,50 @@
 #include <QDebug>
 
 namespace DbUtils {
+	void connectToPostgreSQL(QSqlDatabase& db) {
+		try {
+			EnvLoader::loadEnv(".env");
+		}
+		catch (const std::exception& e) {
+			qDebug() << "Error loading environment variables:" << e.what();
+			return;
+		}
+
+		db = QSqlDatabase::addDatabase("QPSQL");
+
+		char* dbHost = nullptr;
+		char* dbName = nullptr;
+		char* dbUser = nullptr;
+		char* dbPassword = nullptr;
+		char* dbPort = nullptr;
+
+		size_t len;
+		_dupenv_s(&dbHost, &len, "DB_HOST");
+		_dupenv_s(&dbName, &len, "DB_NAME");
+		_dupenv_s(&dbUser, &len, "DB_USER");
+		_dupenv_s(&dbPassword, &len, "DB_PASSWORD");
+		_dupenv_s(&dbPort, &len, "DB_PORT");
+
+		db.setHostName(dbHost);
+		db.setDatabaseName(dbName);
+		db.setUserName(dbUser);
+		db.setPassword(dbPassword);
+		db.setPort(std::atoi(dbPort)); // Default PostgreSQL port
+
+		if (!db.open()) {
+			qDebug() << "Failed to connect to PostgreSQL:" << db.lastError().text();
+		}
+		else {
+			qDebug() << "Connected to PostgreSQL!";
+		}
+
+		free(dbHost);
+		free(dbName);
+		free(dbUser);
+		free(dbPassword);
+		free(dbPort);
+	}
+
 	QString loadQueryFromFile(const QString& queryName, const QString& filePath) {
 		QFile file(filePath);
 		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
