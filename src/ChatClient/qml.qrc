@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/qt/qml/chatclient">
-        <file>main.qml</file>
+        <file>qml/main.qml</file>
+        <file>qml/Login.qml</file>
+        <file>qml/ChatRoom.qml</file>
+        <file>qml/ChatWindow.qml</file>
     </qresource>
 </RCC>
