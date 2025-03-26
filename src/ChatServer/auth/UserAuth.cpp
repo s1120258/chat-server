@@ -19,15 +19,15 @@ namespace {
 
 UserAuth::UserAuth(QSqlDatabase& db) : m_db(db) {}
 
-void UserAuth::createUserTable() {
+void UserAuth::createUsersTable() {
     QSqlQuery query(m_db);
 
-    QString checkTableQuery = DbUtils::loadQueryFromFile("CHECK_USER_TABLE", USER_QUERY_FILE);
+    QString checkTableQuery = DbUtils::loadQueryFromFile("CHECK_USERS_TABLE", USER_QUERY_FILE);
     if (checkTableQuery.isEmpty() || !DbUtils::checkTable(query, checkTableQuery)) {
         return;
     }
 
-    QString createTableQuery = DbUtils::loadQueryFromFile("CREATE_USER_TABLE", USER_QUERY_FILE);
+    QString createTableQuery = DbUtils::loadQueryFromFile("CREATE_USERS_TABLE", USER_QUERY_FILE);
     if (createTableQuery.isEmpty() || !query.exec(createTableQuery)) {
         qDebug() << "Failed to create table:" << query.lastError().text();
         return;
@@ -36,9 +36,9 @@ void UserAuth::createUserTable() {
     qDebug() << "Users table created successfully.";
 }
 
-void UserAuth::deleteUserTable() {
+void UserAuth::deleteUsersTable() {
     QSqlQuery query(m_db);
-    QString queryStr = DbUtils::loadQueryFromFile("DELETE_USER_TABLE", USER_QUERY_FILE);
+    QString queryStr = DbUtils::loadQueryFromFile("DELETE_USERS_TABLE", USER_QUERY_FILE);
     if (queryStr.isEmpty() || !query.exec(queryStr)) {
         qDebug() << "Failed to delete table:" << query.lastError().text();
         return;

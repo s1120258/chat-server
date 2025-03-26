@@ -1,7 +1,7 @@
 -- message_queries.sql
 
 -- Check if messages table exists
-CHECK_MESSAGE_TABLE = 
+CHECK_MESSAGES_TABLE = 
     SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
@@ -9,7 +9,7 @@ CHECK_MESSAGE_TABLE =
     );
 
 -- Create messages table
-CREATE_MESSAGE_TABLE = 
+CREATE_MESSAGES_TABLE = 
     CREATE TABLE IF NOT EXISTS messages (
         id SERIAL PRIMARY KEY,
         room_id INT REFERENCES rooms(id),
@@ -19,7 +19,7 @@ CREATE_MESSAGE_TABLE =
     );
 
 -- Delete messages table
-DELETE_MESSAGE_TABLE = 
+DELETE_MESSAGES_TABLE = 
     DROP TABLE IF EXISTS messages;
 
 -- Fetch messages

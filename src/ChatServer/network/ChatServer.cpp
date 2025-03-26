@@ -7,6 +7,7 @@
 
 namespace {
     const QString ROOM_QUERY_FILE = "queries/room_queries.sql";
+    const QString USER_ROOM_QUERY_FILE = "queries/user_room_queries.sql";
     const QString MESSAGE_QUERY_FILE = "queries/message_queries.sql";
 };
 
@@ -34,30 +35,48 @@ void ChatServer::createRoomsTable()
 {
     QSqlQuery query(m_db);
 
-    QString checkTableQuery = DbUtils::loadQueryFromFile("CHECK_ROOM_TABLE", ROOM_QUERY_FILE);
+    QString checkTableQuery = DbUtils::loadQueryFromFile("CHECK_ROOMS_TABLE", ROOM_QUERY_FILE);
     if (checkTableQuery.isEmpty() || !DbUtils::checkTable(query, checkTableQuery)) {
         return;
     }
 
-    QString createTableQuery = DbUtils::loadQueryFromFile("CREATE_ROOM_TABLE", ROOM_QUERY_FILE);
+    QString createTableQuery = DbUtils::loadQueryFromFile("CREATE_ROOMS_TABLE", ROOM_QUERY_FILE);
     if (createTableQuery.isEmpty() || !query.exec(createTableQuery)) {
-        qDebug() << "Failed to create rooms table:" << query.lastError().text();
+        qDebug() << "Failed to create table:" << query.lastError().text();
         return;
     }
 
     qDebug() << "Rooms table created successfully!";
 }
 
-void ChatServer::createMessagesTable()
+void ChatServer::createUserRoomsTable()
 {
     QSqlQuery query(m_db);
 
-    QString checkTableQuery = DbUtils::loadQueryFromFile("CHECK_MESSAGE_TABLE", MESSAGE_QUERY_FILE);
+    QString checkTableQuery = DbUtils::loadQueryFromFile("CHECK_USER_ROOMS_TABLE", USER_ROOM_QUERY_FILE);
     if (checkTableQuery.isEmpty() || !DbUtils::checkTable(query, checkTableQuery)) {
         return;
     }
 
-    QString createTableQuery = DbUtils::loadQueryFromFile("CREATE_MESSAGE_TABLE", MESSAGE_QUERY_FILE);
+    QString createTableQuery = DbUtils::loadQueryFromFile("CREATE_USER_ROOMS_TABLE", USER_ROOM_QUERY_FILE);
+    if (createTableQuery.isEmpty() || !query.exec(createTableQuery)) {
+        qDebug() << "Failed to create user_rooms table:" << query.lastError().text();
+        return;
+    }
+
+    qDebug() << "User rooms table created successfully!";
+}
+
+void ChatServer::createMessagesTable()
+{
+    QSqlQuery query(m_db);
+
+    QString checkTableQuery = DbUtils::loadQueryFromFile("CHECK_MESSAGES_TABLE", MESSAGE_QUERY_FILE);
+    if (checkTableQuery.isEmpty() || !DbUtils::checkTable(query, checkTableQuery)) {
+        return;
+    }
+
+    QString createTableQuery = DbUtils::loadQueryFromFile("CREATE_MESSAGES_TABLE", MESSAGE_QUERY_FILE);
     if (createTableQuery.isEmpty() || !query.exec(createTableQuery)) {
         qDebug() << "Failed to create messages table:" << query.lastError().text();
         return;
@@ -70,7 +89,7 @@ bool ChatServer::createRoom(const QString& roomName)
 {
     QSqlQuery query(m_db);
 
-    QString queryStr = DbUtils::loadQueryFromFile("CREATE_ROOM", ROOM_QUERY_FILE);
+    QString queryStr = DbUtils::loadQueryFromFile("PREPARE_ROOM", ROOM_QUERY_FILE);
     if (queryStr.isEmpty()) {
         return false;
     }
@@ -83,6 +102,8 @@ bool ChatServer::createRoom(const QString& roomName)
         return false;
     }
 
+    qDebug() << "Room " << roomName << " created successfully!";
+
     return true;
 }
 
@@ -90,7 +111,7 @@ bool ChatServer::joinRoom(int userId, int roomId)
 {
     QSqlQuery query(m_db);
 
-    QString queryStr = DbUtils::loadQueryFromFile("JOIN_ROOM", ROOM_QUERY_FILE);
+    QString queryStr = DbUtils::loadQueryFromFile("JOIN_ROOM", USER_ROOM_QUERY_FILE);
     if (queryStr.isEmpty()) {
         return false;
     }
@@ -103,6 +124,8 @@ bool ChatServer::joinRoom(int userId, int roomId)
         qDebug() << "Database query error:" << query.lastError().text();
         return false;
     }
+
+    qDebug() << "User " << userId << " joined room " << roomId << " successfully!";
 
     return true;
 }
@@ -111,7 +134,7 @@ bool ChatServer::leaveRoom(int userId, int roomId)
 {
     QSqlQuery query(m_db);
 
-    QString queryStr = DbUtils::loadQueryFromFile("LEAVE_ROOM", ROOM_QUERY_FILE);
+    QString queryStr = DbUtils::loadQueryFromFile("LEAVE_ROOM", USER_ROOM_QUERY_FILE);
     if (queryStr.isEmpty()) {
         return false;
     }
@@ -124,6 +147,8 @@ bool ChatServer::leaveRoom(int userId, int roomId)
         qDebug() << "Database query error:" << query.lastError().text();
         return false;
     }
+
+    qDebug() << "User " << userId << " left from room " << roomId << " successfully!";
 
     return true;
 }

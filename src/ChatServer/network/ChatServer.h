@@ -18,6 +18,7 @@ public:
     void startServer(quint16 port);
 
 	void createRoomsTable();
+    void createUserRoomsTable();
 	void createMessagesTable();
 
     bool createRoom(const QString& roomName);

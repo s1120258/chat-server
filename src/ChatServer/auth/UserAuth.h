@@ -9,8 +9,8 @@ class UserAuth {
 public:
     UserAuth(QSqlDatabase& db);
 
-	void createUserTable();
-    void deleteUserTable();
+	void createUsersTable();
+    void deleteUsersTable();
 
     bool registerUser(const QString& username, const QString& password);
     bool authenticateUser(const QString& username, const QString& password);

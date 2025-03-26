@@ -16,16 +16,23 @@ int main(int argc, char *argv[])
     DbUtils::connectToPostgreSQL(db);
 
 	UserAuth auth(db);
-    //auth.deleteUserTable();
-	auth.createUserTable();
+	auth.createUsersTable();
 
     ChatServer chatServer(db);
     chatServer.createRoomsTable();
+    chatServer.createUserRoomsTable();
+    //chatServer.createMessagesTable();
     chatServer.startServer(12345);
 
 	RedisManager redisManager;
     redisManager.connectToRedis();
 	redisManager.subscribeToChannel("chat");
+
+    //auth.registerUser("u01", "p01");
+    //auth.registerUser("u02", "p02");
+    //chatServer.createRoom("r01");
+    //chatServer.joinRoom(1, 1);
+    //chatServer.joinRoom(2, 1);
 
     return a.exec();
 }

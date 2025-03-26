@@ -1,7 +1,7 @@
 -- user_queries.sql
 
 -- Check if users table exists
-CHECK_USER_TABLE = 
+CHECK_USERS_TABLE = 
     SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
@@ -9,13 +9,17 @@ CHECK_USER_TABLE =
     );
 
 -- Create users table
-CREATE_USER_TABLE = 
+CREATE_USERS_TABLE = 
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(50) UNIQUE NOT NULL,
         password_hash CHAR(64) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
+-- Delete users table
+DELETE_USERS_TABLE = 
+    DROP TABLE IF EXISTS users;
 
 -- Register user
 REGISTER_USER = 
@@ -24,7 +28,3 @@ REGISTER_USER =
 -- Authenticate user
 AUTHENTICATE_USER = 
     SELECT password_hash FROM users WHERE username = :username;
-
--- Delete users table
-DELETE_USER_TABLE = 
-    DROP TABLE IF EXISTS users;

@@ -135,6 +135,7 @@
     <None Include="queries\message_queries.sql" />
     <None Include="queries\room_queries.sql" />
     <None Include="queries\user_queries.sql" />
+    <None Include="queries\user_room_queries.sql" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
