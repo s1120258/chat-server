@@ -11,7 +11,7 @@ namespace {
     const QString MESSAGE_QUERY_FILE = "queries/message_queries.sql";
 };
 
-ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : m_db(db), QTcpServer(parent) {}
+ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), m_db(db), userAuth(db) {}
 
 void ChatServer::startServer(quint16 port) {
     if (this->listen(QHostAddress::Any, port)) {
@@ -23,7 +23,7 @@ void ChatServer::startServer(quint16 port) {
 }
 
 void ChatServer::incomingConnection(qintptr socketDescriptor) {
-    ChatClientHandler* clientHandler = new ChatClientHandler(socketDescriptor, this);
+    ChatClientHandler* clientHandler = new ChatClientHandler(socketDescriptor, &userAuth, this);
     clients.append(clientHandler);
     connect(clientHandler, &ChatClientHandler::disconnected, this, [this, clientHandler]() {
         clients.removeAll(clientHandler);

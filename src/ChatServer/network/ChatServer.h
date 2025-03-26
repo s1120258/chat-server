@@ -2,6 +2,7 @@
 #define CHATSERVER_H
 
 #include "ChatClientHandler.h"
+#include "auth/UserAuth.h"
 #include <QTcpServer>
 #include <QList>
 #include <QVector>
@@ -32,7 +33,7 @@ protected:
 
 private:
     QSqlDatabase& m_db;
-
+    UserAuth userAuth;
     QList<ChatClientHandler*> clients;
 };
 

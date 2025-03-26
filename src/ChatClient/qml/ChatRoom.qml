@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 ApplicationWindow {
+    id: chatRoomWindow
     visible: true
     width: 600
     height: 400
@@ -16,7 +17,7 @@ ApplicationWindow {
         }
 
         delegate: Item {
-            width: parent.width
+            width: chatRoomList.width
             height: 50
 
             Text {
@@ -28,9 +29,34 @@ ApplicationWindow {
                 anchors.fill: parent
                 onClicked: {
                     // Open chat window
-                    var chatWindow = Qt.createComponent("ChatWindow.qml").createObject(parent, { "roomName": model.name })
-                    parent.destroy()
+                    var chatWindowComponent = Qt.createComponent("ChatWindow.qml");
+                    if (chatWindowComponent.status === Component.Ready) {
+                        var chatWindow = chatWindowComponent.createObject(chatRoomWindow, { "roomName": model.name });
+                        if (chatWindow === null) {
+                            console.error("Error creating ChatWindow object");
+                        } else {
+                            chatRoomWindow.visible = false;
+                            chatWindow.visible = true;
+                        }
+                    } else {
+                        console.error("Error loading ChatWindow component");
+                    }
                 }
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        // Fetch rooms from the server
+        chatClient.fetchRooms();
+    }
+
+    Connections {
+        target: chatClient
+        onRoomsReceived: {
+            chatRoomList.model.clear();
+            for (var i = 0; i < rooms.length; i++) {
+                chatRoomList.model.append({ "name": rooms[i] });
             }
         }
     }

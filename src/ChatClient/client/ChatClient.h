@@ -8,11 +8,14 @@ class ChatClient : public QObject {
     Q_OBJECT
 public:
     explicit ChatClient(QObject* parent = nullptr);
-    void connectToServer(const QHostAddress& address, quint16 port);
-    void sendMessage(const QString& message);
+    Q_INVOKABLE void connectToServer(const QHostAddress& address, quint16 port);
+
+    Q_INVOKABLE void sendMessage(const QString& message);
+    Q_INVOKABLE void login(const QString& username, const QString& password);
 
 signals:
     void messageReceived(const QString& message);
+    void loginResult(bool success, const QString& errorMessage);
 
 private slots:
     void onReadyRead();

@@ -1,4 +1,6 @@
 #include "ChatClient.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QDebug>
 
 ChatClient::ChatClient(QObject* parent) : QObject(parent) {
@@ -16,10 +18,29 @@ void ChatClient::sendMessage(const QString& message) {
     }
 }
 
+void ChatClient::login(const QString& username, const QString& password) {
+    if (socket.state() == QAbstractSocket::ConnectedState) {
+        QJsonObject json;
+        json["type"] = "login";
+        json["username"] = username;
+        json["password"] = password;
+        socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
+    }
+}
+
 void ChatClient::onReadyRead() {
     QByteArray data = socket.readAll();
-    qDebug() << "Message received:" << data;
-    emit messageReceived(QString::fromUtf8(data));
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    QJsonObject json = doc.object();
+
+    if (json["type"] == "message") {
+        emit messageReceived(json["content"].toString());
+    }
+    else if (json["type"] == "loginResult") {
+        bool success = json["success"].toBool();
+        QString errorMessage = json["errorMessage"].toString();
+        emit loginResult(success, errorMessage);
+    }
 }
 
 void ChatClient::onDisconnected() {

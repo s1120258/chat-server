@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 ApplicationWindow {
+    id: loginWindow
     visible: true
     width: 400
     height: 300
@@ -25,10 +26,43 @@ ApplicationWindow {
             text: "Login"
             onClicked: {
                 // Handle login
-                // For now, just open the chat room window
-                Qt.createComponent("ChatRoom.qml").createObject(parent)
-                parent.destroy()
+                if (usernameField.text !== "" && passwordField.text !== "") {
+                    chatClient.login(usernameField.text, passwordField.text);
+                } else {
+                    console.error("Username and password cannot be empty");
+                }
+            }
+        }
+
+        Text {
+            id: errorMessage
+            color: "red"
+            visible: false
+        }
+    }
+
+    Connections {
+        target: chatClient
+        onLoginResult: {
+            if (success) {
+                // Open the chat room window
+                var chatRoomComponent = Qt.createComponent("ChatRoom.qml");
+                if (chatRoomComponent.status === Component.Ready) {
+                    var chatRoom = chatRoomComponent.createObject(null);
+                    if (chatRoom === null) {
+                        console.error("Error creating ChatRoom object");
+                    } else {
+                        loginWindow.visible = false;
+                        chatRoom.visible = true;
+                    }
+                } else {
+                    console.error("Error loading ChatRoom component");
+                }
+            } else {
+                errorMessage.text = errorMessage;
+                errorMessage.visible = true;
             }
         }
     }
 }
+
