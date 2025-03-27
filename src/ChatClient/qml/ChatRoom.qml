@@ -4,60 +4,93 @@ import QtQuick.Controls 2.15
 ApplicationWindow {
     id: chatRoomWindow
     visible: true
-    width: 600
-    height: 400
-    title: "Chat Rooms"
+    width: 800
+    height: 600
+    title: "Chat Room"
 
-    ListView {
-        id: chatRoomList
+    property string roomName: ""
+
+    Column {
         anchors.fill: parent
-        model: ListModel {
-            ListElement { name: "Room 1" }
-            ListElement { name: "Room 2" }
-        }
 
-        delegate: Item {
-            width: chatRoomList.width
+        Row {
+            width: parent.width
             height: 50
+            spacing: 10
 
-            Text {
-                text: model.name
-                anchors.centerIn: parent
+            Button {
+                text: "Back"
+                onClicked: {
+                    chatRoomWindow.visible = false;
+                    homeWindow.visible = true;
+                }
             }
 
-            MouseArea {
-                anchors.fill: parent
+            Text {
+                text: "Room: " + roomName
+                font.pixelSize: 20
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+
+        ListView {
+            id: messageList
+            anchors.fill: parent
+            model: ListModel {}
+
+            delegate: Item {
+                width: parent.width
+                height: 50
+
+                Text {
+                    text: model.message
+                    anchors.centerIn: parent
+                }
+            }
+        }
+
+        Row {
+            TextField {
+                id: messageField
+                width: parent.width - 100
+                placeholderText: "Type a message"
+            }
+
+            Button {
+                text: "Send"
                 onClicked: {
-                    // Open chat window
-                    var chatWindowComponent = Qt.createComponent("ChatWindow.qml");
-                    if (chatWindowComponent.status === Component.Ready) {
-                        var chatWindow = chatWindowComponent.createObject(chatRoomWindow, { "roomName": model.name });
-                        if (chatWindow === null) {
-                            console.error("Error creating ChatWindow object");
-                        } else {
-                            chatRoomWindow.visible = false;
-                            chatWindow.visible = true;
-                        }
+                    chatClient.sendMessage(messageField.text);
+                    messageField.text = "";
+                }
+            }
+        }
+
+        Button {
+            text: "Invite User"
+            onClicked: {
+                // Open invite user dialog
+                var inviteUserComponent = Qt.createComponent("InviteUser.qml");
+                if (inviteUserComponent.status === Component.Ready) {
+                    var inviteUserDialog = inviteUserComponent.createObject(null, { "roomName": roomName });
+                    if (inviteUserDialog === null) {
+                        console.error("Error creating InviteUser dialog");
                     } else {
-                        console.error("Error loading ChatWindow component");
+                        inviteUserDialog.visible = true;
                     }
+                } else {
+                    console.error("Error loading InviteUser component");
                 }
             }
         }
     }
 
-    Component.onCompleted: {
-        // Fetch rooms from the server
-        chatClient.fetchRooms();
-    }
-
     Connections {
         target: chatClient
-        onRoomsReceived: {
-            chatRoomList.model.clear();
-            for (var i = 0; i < rooms.length; i++) {
-                chatRoomList.model.append({ "name": rooms[i] });
-            }
+        function onMessageReceived(message) {
+            messageList.model.append({ "message": message });
         }
     }
 }
+
+
+

@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "qml_utils.js" as Utils
 
 ApplicationWindow {
     id: loginWindow
@@ -45,20 +46,11 @@ ApplicationWindow {
         target: chatClient
         onLoginResult: {
             if (success) {
+                console.error("Logged in successfully");
                 // Open the chat room window
-                var chatRoomComponent = Qt.createComponent("ChatRoom.qml");
-                if (chatRoomComponent.status === Component.Ready) {
-                    var chatRoom = chatRoomComponent.createObject(null);
-                    if (chatRoom === null) {
-                        console.error("Error creating ChatRoom object");
-                    } else {
-                        loginWindow.visible = false;
-                        chatRoom.visible = true;
-                    }
-                } else {
-                    console.error("Error loading ChatRoom component");
-                }
+                Utils.loadWindow(loginWindow, "Home");
             } else {
+                console.error("Login failed");
                 errorMessage.text = errorMessage;
                 errorMessage.visible = true;
             }

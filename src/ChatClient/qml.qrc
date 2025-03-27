@@ -3,6 +3,9 @@
         <file>qml/main.qml</file>
         <file>qml/Login.qml</file>
         <file>qml/ChatRoom.qml</file>
-        <file>qml/ChatWindow.qml</file>
+        <file>qml/CreateRoom.qml</file>
+        <file>qml/Home.qml</file>
+        <file>qml/InviteUser.qml</file>
+        <file>qml/qml_utils.js</file>
     </qresource>
 </RCC>

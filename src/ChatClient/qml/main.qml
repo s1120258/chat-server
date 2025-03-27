@@ -1,17 +1,28 @@
-import QtQuick 2.9
-import QtQuick.Window 2.2
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 
-Window {
+ApplicationWindow {
     visible: true
-    width: 640
-    height: 480
-    title: "ChatClient"
-    Text {
-        anchors.fill: parent
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        font.bold: true
-        font.pointSize: 42
-        text: "Hello World!"
+    width: 800
+    height: 600
+
+    Home {
+        id: homeWindow
+    }
+
+    InvitationDialog {
+        id: invitationDialog
+    }
+
+    Connections {
+        target: chatClient
+        function onInvitationReceived(roomName, invitedBy) {
+            invitationDialog.roomName = roomName;
+            invitationDialog.invitedBy = invitedBy;
+            invitationDialog.visible = true;
+        }
     }
 }
+
+
+
