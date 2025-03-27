@@ -4,8 +4,6 @@ import QtQuick.Controls 2.15
 Dialog {
     id: createRoomDialog
     visible: false
-    width: 400
-    height: 600
     title: "Create Room"
 
     Column {
@@ -25,6 +23,13 @@ Dialog {
                 } else {
                     console.error("Room name cannot be empty");
                 }
+            }
+        }
+
+        Button {
+            text: "Back"
+            onClicked: {
+                createRoomDialog.visible = false;
             }
         }
 

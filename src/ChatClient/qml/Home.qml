@@ -12,23 +12,18 @@ ApplicationWindow {
     Column {
         anchors.fill: parent
 
-        Button {
-            text: "Create Room"
-            onClicked: {
-                console.log("Create Room button clicked");
-                // Open create room dialog
-                Utils.loadDialog(homeWindow, "CreateRoom");
-            }
-        }
-
         ListView {
             id: roomList
             anchors.fill: parent
-            model: ListModel {}
+            model: ListModel {
+                ListElement { name: "Room 1" }
+                ListElement { name: "Room 2" }
+                ListElement { name: "Room 3" }
+            }
 
             delegate: Item {
                 width: roomList.width
-                height: 50
+                height: 40
 
                 Text {
                     text: model.name
@@ -40,9 +35,18 @@ ApplicationWindow {
                     onClicked: {
                         console.log("Chat Room clicked");
                         // Open chat room window
-                        Utils.loadDialog(homeWindow, "ChatRoom");
+                        Utils.loadWindow(homeWindow, "ChatRoom");
                     }
                 }
+            }
+        }
+
+        Button {
+            text: "Create Room"
+            onClicked: {
+                console.log("Create Room button clicked");
+                // Open create room dialog
+                Utils.loadDialog(homeWindow, "CreateRoom");
             }
         }
     }

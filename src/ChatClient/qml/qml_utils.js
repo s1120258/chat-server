@@ -7,7 +7,7 @@ function loadDialog(parent, componentName) {
 
     var obj = component.createObject(parent);
     if (obj === null) {
-        console.error("Error creating " + obj + " dialog");
+        console.error("Error creating " + obj + " component");
         return;
     }
     obj.visible = true;

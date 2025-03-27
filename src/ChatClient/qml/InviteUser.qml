@@ -28,6 +28,13 @@ Dialog {
             }
         }
 
+        Button {
+            text: "Back"
+            onClicked: {
+                inviteUserDialog.visible = false;
+            }
+        }
+
         Text {
             id: errorMessage
             color: "red"

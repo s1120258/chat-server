@@ -122,7 +122,6 @@
     <None Include="qml\Home.qml" />
     <None Include="qml\InviteUser.qml" />
     <None Include="qml\Login.qml" />
-    <None Include="qml\main.qml" />
     <None Include="qml\qml_utils.js" />
   </ItemGroup>
   <ItemGroup>
