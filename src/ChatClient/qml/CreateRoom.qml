@@ -43,9 +43,12 @@ Dialog {
     Connections {
         target: chatClient
         function onRoomCreated(success, roomName) {
-            if (!success) {
-                errorMessage.text = "Failed to create room: " + roomName;
-                errorMessage.visible = true;
+            if (success) {
+                chatClient.fetchJoinedRooms();
+            } else {
+                console.error("Failed to create room: " + roomName);
+                // errorMessage.text = "Failed to create room: " + roomName;
+                // errorMessage.visible = true;
             }
         }
     }

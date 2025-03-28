@@ -11,7 +11,7 @@ namespace {
     const QString MESSAGE_QUERY_FILE = "queries/message_queries.sql";
 };
 
-ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), m_db(db), userAuth(db) {}
+ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), m_db(db), userAuth(new UserAuth(db)) {}
 
 void ChatServer::startServer(quint16 port) {
     if (this->listen(QHostAddress::Any, port)) {
@@ -23,7 +23,7 @@ void ChatServer::startServer(quint16 port) {
 }
 
 void ChatServer::incomingConnection(qintptr socketDescriptor) {
-    ChatClientHandler* clientHandler = new ChatClientHandler(socketDescriptor, &userAuth, this);
+    ChatClientHandler* clientHandler = new ChatClientHandler(socketDescriptor, this, userAuth, this);
     clients.append(clientHandler);
     connect(clientHandler, &ChatClientHandler::disconnected, this, [this, clientHandler]() {
         clients.removeAll(clientHandler);
@@ -85,7 +85,34 @@ void ChatServer::createMessagesTable()
     qDebug() << "Messages table created successfully!";
 }
 
-bool ChatServer::createRoom(const QString& roomName)
+QVector<QVariantMap> ChatServer::fetchJoinedRooms(int userId)
+{
+    QSqlQuery query(m_db);
+
+    QString queryStr = DbUtils::loadQueryFromFile("FETCH_JOINED_ROOMS", USER_ROOM_QUERY_FILE);
+    if (queryStr.isEmpty()) {
+        return {};
+    }
+
+    query.prepare(queryStr);
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qDebug() << "Failed to fetch joined rooms:" << query.lastError().text();
+        return {};
+    }
+
+    QVector<QVariantMap> rooms;
+    while (query.next()) {
+        QVariantMap room;
+        room["room_id"] = query.value("room_id");
+        room["room_name"] = query.value("room_name");
+        rooms.append(room);
+    }
+    return rooms;
+}
+
+bool ChatServer::createRoom(const QString& roomName, int userId)
 {
     QSqlQuery query(m_db);
 
@@ -99,6 +126,12 @@ bool ChatServer::createRoom(const QString& roomName)
 
     if (!query.exec()) {
         qDebug() << "Database query error:" << query.lastError().text();
+        return false;
+    }
+
+    int roomId = query.lastInsertId().toInt();
+    if (!joinRoom(userId, roomId)) {
+        qDebug() << "Failed to join room after creation";
         return false;
     }
 

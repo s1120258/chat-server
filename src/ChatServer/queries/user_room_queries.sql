@@ -16,6 +16,13 @@ CREATE_USER_ROOMS_TABLE =
         PRIMARY KEY (user_id, room_id)
     );
 
+-- Fetch joined rooms
+FETCH_JOINED_ROOMS = 
+    SELECT r.id AS room_id, r.name AS room_name
+    FROM rooms r
+    JOIN user_rooms ur ON r.id = ur.room_id
+    WHERE ur.user_id = :user_id;
+
 -- Join room
 JOIN_ROOM = 
     INSERT INTO user_rooms (user_id, room_id) VALUES (:user_id, :room_id);

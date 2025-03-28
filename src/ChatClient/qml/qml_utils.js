@@ -12,9 +12,20 @@ function loadDialog(parent, componentName) {
     }
     obj.visible = true;
 }
+
 function loadWindow(parent, componentName) {
     loadDialog(parent, componentName);
     if (parent) {
         parent.visible = false;
+    }
+}
+
+function getRoomName(room) {
+    try {
+        var roomObject = JSON.parse(room);
+        return roomObject.room_name;
+    } catch (e) {
+        console.error("Error parsing room JSON string:", e);
+        return "";
     }
 }

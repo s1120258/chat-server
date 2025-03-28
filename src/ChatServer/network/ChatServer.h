@@ -22,7 +22,8 @@ public:
     void createUserRoomsTable();
 	void createMessagesTable();
 
-    bool createRoom(const QString& roomName);
+	QVector<QVariantMap> fetchJoinedRooms(int userId);
+    bool createRoom(const QString& roomName, int userId);
     bool joinRoom(int userId, int roomId);
     bool leaveRoom(int userId, int roomId);
 
@@ -33,7 +34,7 @@ protected:
 
 private:
     QSqlDatabase& m_db;
-    UserAuth userAuth;
+    UserAuth* userAuth;
     QList<ChatClientHandler*> clients;
 };
 

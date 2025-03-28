@@ -90,3 +90,25 @@ bool UserAuth::authenticateUser(const QString& username, const QString& password
 
     return false;
 }
+
+int UserAuth::getUserId(const QString& username) {
+    QSqlQuery query(m_db);
+    QString queryStr = DbUtils::loadQueryFromFile("GET_USER_ID", USER_QUERY_FILE);
+    if (queryStr.isEmpty()) {
+        return -1;
+    }
+
+    query.prepare(queryStr);
+    query.bindValue(":username", username);
+
+    if (!query.exec()) {
+        qDebug() << "Database query error:" << query.lastError().text();
+        return -1;
+    }
+
+    if (query.next()) {
+        return query.value(0).toInt();
+    }
+
+    return -1;
+}

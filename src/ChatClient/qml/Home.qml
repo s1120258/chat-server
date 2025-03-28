@@ -60,8 +60,8 @@ ApplicationWindow {
         target: chatClient
         function onJoinedRoomsReceived(rooms) {
             roomList.model.clear();
-            for (var i = 0; i < rooms.length; i++) {
-                roomList.model.append({ "name": rooms[i] });
+            for (var i = 0; i < rooms.length; ++i) {
+                roomList.model.append({ "name": Utils.getRoomName(rooms[i]) });
             }
         }
     }

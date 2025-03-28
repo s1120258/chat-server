@@ -28,3 +28,7 @@ REGISTER_USER =
 -- Authenticate user
 AUTHENTICATE_USER = 
     SELECT password_hash FROM users WHERE username = :username;
+
+-- Get user ID
+GET_USER_ID = 
+    SELECT id FROM users WHERE username = :username;

@@ -31,8 +31,10 @@ int main(int argc, char *argv[])
     //auth.registerUser("u01", "p01");
     //auth.registerUser("u02", "p02");
     //chatServer.createRoom("r01");
+    //chatServer.createRoom("r02");
     //chatServer.joinRoom(1, 1);
     //chatServer.joinRoom(2, 1);
+    //chatServer.joinRoom(1, 2);
 
     return a.exec();
 }
