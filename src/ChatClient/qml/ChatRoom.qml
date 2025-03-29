@@ -11,6 +11,7 @@ ApplicationWindow {
 
     property string roomName: ""
     property int roomId: -1
+    property string userNamesString: ""
     property var userIds: []
 
     Column {
@@ -18,7 +19,7 @@ ApplicationWindow {
 
         Row {
             width: parent.width
-            height: 50
+            height: 20
             spacing: 10
 
             Text {
@@ -29,22 +30,15 @@ ApplicationWindow {
             }
         }
 
-        ListView {
-            id: userList
+        Row {
             width: parent.width
-            height: 100
-            model: ListModel {
-                ListElement { userName: "User 0" }
-            }
+            height: 80
+            spacing: 10
 
-            delegate: Item {
-                width: parent.width
-                height: 30
-
-                Text {
-                    text: model.userName
-                    anchors.centerIn: parent
-                }
+            Text {
+                text: "Users: " + userNamesString
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
 
@@ -113,12 +107,13 @@ ApplicationWindow {
         target: chatClient
 
         function onUsersInRoomReceived(users) {
-            userList.model.clear();
             userIds = [];
+            var userNames = [];
             for (var i = 0; i < users.length; ++i) {
-                userList.model.append({ "userName": Utils.getJsonValue(users[i], "username") });
+                userNames.push(Utils.getJsonValue(users[i], "username"));
                 userIds.push(parseInt(Utils.getJsonValue(users[i], "user_id"), 10));
             }
+            userNamesString = userNames.join(", ");
         }
 
         function onMessageReceived(message) {
