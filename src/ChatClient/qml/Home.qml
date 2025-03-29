@@ -16,9 +16,7 @@ ApplicationWindow {
             id: roomList
             anchors.fill: parent
             model: ListModel {
-                ListElement { name: "Room 1" }
-                ListElement { name: "Room 2" }
-                ListElement { name: "Room 3" }
+                ListElement { name: "Room 0"; roomId: 0 }
             }
 
             delegate: Item {
@@ -33,9 +31,9 @@ ApplicationWindow {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        console.log("Chat Room clicked");
+                        console.log("Chat Room clicked, Name: " + model.name);
                         // Open chat room window
-                        Utils.loadWindow(homeWindow, "ChatRoom");
+                        Utils.loadWindow(homeWindow, "ChatRoom", { roomName: model.name, roomId: model.roomId });
                     }
                 }
             }
@@ -61,7 +59,10 @@ ApplicationWindow {
         function onJoinedRoomsReceived(rooms) {
             roomList.model.clear();
             for (var i = 0; i < rooms.length; ++i) {
-                roomList.model.append({ "name": Utils.getRoomName(rooms[i]) });
+                roomList.model.append({
+                    "name": Utils.getJsonValue(rooms[i], "room_name"),
+                    "roomId": Utils.getJsonValue(rooms[i], "room_id")
+                });
             }
         }
     }

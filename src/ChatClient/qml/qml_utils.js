@@ -1,11 +1,14 @@
-function loadDialog(parent, componentName) {
+function loadDialog(parent, componentName, properties = {}) {
     var component = Qt.createComponent(componentName + ".qml");
     if (component.status != Component.Ready) {
         console.error("Error loading " + componentName + " component");
         return;
     }
 
-    var obj = component.createObject(parent);
+    var obj = (properties && Object.keys(properties).length > 0) ?
+        component.createObject(parent, properties) :
+        component.createObject(parent);
+
     if (obj === null) {
         console.error("Error creating " + obj + " component");
         return;
@@ -13,17 +16,17 @@ function loadDialog(parent, componentName) {
     obj.visible = true;
 }
 
-function loadWindow(parent, componentName) {
-    loadDialog(parent, componentName);
+function loadWindow(parent, componentName, properties = {}) {
+    loadDialog(parent, componentName, properties);
     if (parent) {
         parent.visible = false;
     }
 }
 
-function getRoomName(room) {
+function getJsonValue(jsonStr, key) {
     try {
-        var roomObject = JSON.parse(room);
-        return roomObject.room_name;
+        var jsonObj = JSON.parse(jsonStr);
+        return jsonObj[key];
     } catch (e) {
         console.error("Error parsing room JSON string:", e);
         return "";

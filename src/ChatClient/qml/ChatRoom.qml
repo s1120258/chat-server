@@ -10,6 +10,7 @@ ApplicationWindow {
     title: "Chat Room"
 
     property string roomName: ""
+    property int roomId: -1
 
     Column {
         anchors.fill: parent
@@ -23,6 +24,7 @@ ApplicationWindow {
                 text: "Room: " + roomName
                 font.pixelSize: 20
                 anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
 
