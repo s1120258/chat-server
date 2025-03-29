@@ -85,7 +85,10 @@ ApplicationWindow {
             onClicked: {
                 console.log("Invite User button clicked");
                 // Open invite user dialog
-                Utils.loadDialog(chatRoomWindow, "InviteUser");
+                Utils.loadDialog(chatRoomWindow, "InviteUser", {
+                    roomName: roomName,
+                    roomId: roomId
+                });
             }
         }
 

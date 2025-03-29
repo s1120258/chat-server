@@ -73,6 +73,7 @@ namespace DbUtils {
 		}
 		return query.trimmed();
 	}
+
 	bool checkTable(QSqlQuery& query, const QString& checkTableQuery) {
 		if (!query.exec(checkTableQuery)) {
 			qDebug() << "Failed to check table existence:" << query.lastError().text();

@@ -37,8 +37,8 @@ void ChatClientHandler::onReadyRead() {
     }
     else if (type == "inviteUser") {
         QString username = json["username"].toString();
-        QString roomName = json["roomName"].toString();
-        handleInviteUser(username, roomName);
+        int roomId = json["roomId"].toInt();
+        handleInviteUserToRoom(username, roomId);
     }
     else if (type == "message") {
         QString message = json["content"].toString();
@@ -115,17 +115,17 @@ void ChatClientHandler::handleCreateRoom(const QString& roomName) {
     QJsonObject json;
     json["type"] = "roomCreated";
     json["success"] = success;
-    json["roomName"] = roomName;
+    json["room_name"] = roomName;
     socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
 
-void ChatClientHandler::handleInviteUser(const QString& username, const QString& roomName) {
+void ChatClientHandler::handleInviteUserToRoom(const QString& username, int roomId) {
+    bool success = chatServer->joinRoom(username, roomId);
     QJsonObject json;
-    json["type"] = "invitation";
-    json["roomName"] = roomName;
-    json["invitedBy"] = username;
-    // Send invitation to the specified user
-    // Example: find the user and send the invitation
+    json["type"] = "userInvited";
+    json["success"] = success;
+    json["username"] = username;
+    json["room_id"] = roomId;
     socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
 

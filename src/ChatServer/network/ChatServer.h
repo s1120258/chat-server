@@ -27,6 +27,7 @@ public:
 
     bool createRoom(const QString& roomName, int userId);
     bool joinRoom(int userId, int roomId);
+    bool joinRoom(const QString& userName, int roomId);
     bool leaveRoom(int userId, int roomId);
 
     QVector<QVariantMap> fetchMessages(int roomId);

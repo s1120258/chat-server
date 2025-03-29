@@ -167,8 +167,7 @@ bool ChatServer::createRoom(const QString& roomName, int userId)
     return true;
 }
 
-bool ChatServer::joinRoom(int userId, int roomId)
-{
+bool ChatServer::joinRoom(int userId, int roomId) {
     QSqlQuery query(m_db);
 
     QString queryStr = DbUtils::loadQueryFromFile("JOIN_ROOM", USER_ROOM_QUERY_FILE);
@@ -188,6 +187,16 @@ bool ChatServer::joinRoom(int userId, int roomId)
     qDebug() << "User " << userId << " joined room " << roomId << " successfully!";
 
     return true;
+}
+
+bool ChatServer::joinRoom(const QString& userName, int roomId)
+{
+	int userId = userAuth->getUserId(userName);
+    if (userId == -1) {
+        return false;
+    }
+
+	return joinRoom(userId, roomId);
 }
 
 bool ChatServer::leaveRoom(int userId, int roomId)

@@ -7,6 +7,7 @@ Dialog {
     title: "Invite User"
 
     property string roomName: ""
+    property int roomId: -1
 
     Column {
         anchors.centerIn: parent
@@ -20,7 +21,7 @@ Dialog {
             text: "Invite"
             onClicked: {
                 if (usernameField.text !== "") {
-                    chatClient.inviteUserToRoom(usernameField.text, roomName);
+                    chatClient.inviteUserToRoom(usernameField.text, roomId);
                     inviteUserDialog.visible = false;
                 } else {
                     console.error("Username cannot be empty");
@@ -44,10 +45,13 @@ Dialog {
 
     Connections {
         target: chatClient
-        function onRoomJoined(success, roomName) {
-            if (!success) {
-                errorMessage.text = "Failed to invite user to room: " + roomName;
-                errorMessage.visible = true;
+        function onUserInvited(success, username) {
+            if (success) {
+                chatClient.fetchUsersInRoom(roomId);
+            } else {
+                console.error("Failed to invite user: " + username);
+                // errorMessage.text = "Failed to invite user: " + username;
+                // errorMessage.visible = true;
             }
         }
     }

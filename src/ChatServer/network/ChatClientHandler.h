@@ -27,7 +27,7 @@ private:
     void handleFetchUsersInRoom(int roomId);
 
     void handleCreateRoom(const QString& roomname);
-    void handleInviteUser(const QString& username, const QString& roomname);
+    void handleInviteUserToRoom(const QString& username, int roomId);
     void handleMessage(const QString& message);
 
     QTcpSocket* socket;

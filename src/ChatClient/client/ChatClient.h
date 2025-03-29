@@ -14,7 +14,7 @@ public:
     Q_INVOKABLE void fetchJoinedRooms();
 	Q_INVOKABLE void fetchUsersInRoom(int roomId);
     Q_INVOKABLE void createRoom(const QString& roomName);
-    Q_INVOKABLE void inviteUserToRoom(const QString& username, const QString& roomName);
+    Q_INVOKABLE void inviteUserToRoom(const QString& username, int roomId);
     Q_INVOKABLE void sendMessage(const QString& message);
 
 signals:
@@ -22,8 +22,7 @@ signals:
     void joinedRoomsReceived(const QStringList& rooms);
     void usersInRoomReceived(const QStringList& users);
     void roomCreated(bool success, const QString& roomName);
-    void roomJoined(bool success, const QString& roomName);
-    void invitationReceived(const QString& roomName, const QString& invitedBy);
+    void userInvited(bool success, const QString& userName);
     void messageReceived(const QString& message);
 
 private slots:
