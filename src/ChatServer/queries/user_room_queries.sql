@@ -23,6 +23,13 @@ FETCH_JOINED_ROOMS =
     JOIN user_rooms ur ON r.id = ur.room_id
     WHERE ur.user_id = :user_id;
 
+-- Fetch users in room
+FETCH_USERS_IN_ROOM = 
+    SELECT u.id AS user_id, u.username AS username
+    FROM users u
+    JOIN user_rooms ur ON u.id = ur.user_id
+    WHERE ur.room_id = :room_id;
+
 -- Join room
 JOIN_ROOM = 
     INSERT INTO user_rooms (user_id, room_id) VALUES (:user_id, :room_id);

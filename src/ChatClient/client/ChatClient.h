@@ -12,6 +12,7 @@ public:
 
     Q_INVOKABLE void login(const QString& username, const QString& password);
     Q_INVOKABLE void fetchJoinedRooms();
+	Q_INVOKABLE void fetchUsersInRoom(int roomId);
     Q_INVOKABLE void createRoom(const QString& roomName);
     Q_INVOKABLE void inviteUserToRoom(const QString& username, const QString& roomName);
     Q_INVOKABLE void sendMessage(const QString& message);
@@ -19,6 +20,7 @@ public:
 signals:
     void loginResult(bool success, const QString& errorMessage);
     void joinedRoomsReceived(const QStringList& rooms);
+    void usersInRoomReceived(const QStringList& users);
     void roomCreated(bool success, const QString& roomName);
     void roomJoined(bool success, const QString& roomName);
     void invitationReceived(const QString& roomName, const QString& invitedBy);

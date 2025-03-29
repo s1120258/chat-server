@@ -41,6 +41,24 @@ void ChatClient::onReadyRead() {
         }
         emit joinedRoomsReceived(rooms);
     }
+    else if (json["type"] == "usersInRoom") {
+        QJsonArray usersArray = json["users"].toArray();
+        QStringList users;
+        for (const QJsonValue& value : usersArray) {
+            if (value.isObject()) {
+                QJsonObject userObject = value.toObject();
+                QJsonObject userJson;
+                userJson["user_id"] = QString::number(userObject["user_id"].toInt());
+                userJson["username"] = userObject["username"].toString();
+                QString userJsonString = QString(QJsonDocument(userJson).toJson(QJsonDocument::Compact));
+                users.append(userJsonString);
+            }
+            else {
+                qDebug() << "User value is not an object";
+            }
+        }
+        emit usersInRoomReceived(users);
+    }
     else if (json["type"] == "roomCreated") {
         bool success = json["success"].toBool();
         QString roomName = json["roomName"].toString();
@@ -84,6 +102,16 @@ void ChatClient::fetchJoinedRooms() {
         json["type"] = "fetchJoinedRooms";
         socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
     }
+}
+
+void ChatClient::fetchUsersInRoom(int roomId)
+{
+	if (socket.state() == QAbstractSocket::ConnectedState) {
+		QJsonObject json;
+		json["type"] = "fetchUsersInRoom";
+		json["roomId"] = roomId;
+		socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
+	}
 }
 
 void ChatClient::createRoom(const QString& roomName) {

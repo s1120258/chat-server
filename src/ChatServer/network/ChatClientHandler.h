@@ -22,7 +22,10 @@ private slots:
 
 private:
     void handleLogin(const QString& username, const QString& password);
+
     void handleFetchJoinedRooms();
+    void handleFetchUsersInRoom(int roomId);
+
     void handleCreateRoom(const QString& roomname);
     void handleInviteUser(const QString& username, const QString& roomname);
     void handleMessage(const QString& message);

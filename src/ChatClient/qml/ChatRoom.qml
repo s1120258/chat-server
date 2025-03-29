@@ -11,6 +11,7 @@ ApplicationWindow {
 
     property string roomName: ""
     property int roomId: -1
+    property var userIds: []
 
     Column {
         anchors.fill: parent
@@ -25,6 +26,25 @@ ApplicationWindow {
                 font.pixelSize: 20
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+
+        ListView {
+            id: userList
+            width: parent.width
+            height: 100
+            model: ListModel {
+                ListElement { userName: "User 0" }
+            }
+
+            delegate: Item {
+                width: parent.width
+                height: 30
+
+                Text {
+                    text: model.userName
+                    anchors.centerIn: parent
+                }
             }
         }
 
@@ -84,8 +104,23 @@ ApplicationWindow {
         }
     }
 
+    Component.onCompleted: {
+        // Fetch users in room from the server
+        chatClient.fetchUsersInRoom(roomId);
+    }
+
     Connections {
         target: chatClient
+
+        function onUsersInRoomReceived(users) {
+            userList.model.clear();
+            userIds = [];
+            for (var i = 0; i < users.length; ++i) {
+                userList.model.append({ "userName": Utils.getJsonValue(users[i], "username") });
+                userIds.push(parseInt(Utils.getJsonValue(users[i], "user_id"), 10));
+            }
+        }
+
         function onMessageReceived(message) {
             messageList.model.append({ "message": message });
         }

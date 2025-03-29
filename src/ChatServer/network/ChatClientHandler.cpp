@@ -27,6 +27,10 @@ void ChatClientHandler::onReadyRead() {
     else if (type == "fetchJoinedRooms") {
         handleFetchJoinedRooms();
     }
+    else if (type == "fetchUsersInRoom") {
+        int roomId = json["roomId"].toInt();
+        handleFetchUsersInRoom(roomId);
+    }
     else if (type == "createRoom") {
         QString roomName = json["roomName"].toString();
         handleCreateRoom(roomName);
@@ -70,25 +74,41 @@ void ChatClientHandler::handleFetchJoinedRooms() {
     json["type"] = "joinedRooms";
     QJsonArray roomsArray;
 
-    qDebug() << "Fetched rooms:" << rooms;
-
     for (const auto& room : rooms) {
-        QJsonObject roomJson;
-        if (room.contains("room_id") && room.contains("room_name")) {
-            roomJson["room_id"] = room["room_id"].toInt();
-            roomJson["room_name"] = room["room_name"].toString();
-            roomsArray.append(roomJson);
-        }
-        else {
+        if (!room.contains("room_id") || !room.contains("room_name")) {
             qDebug() << "Room data is missing 'room_id' or 'room_name':" << room;
+            return;
         }
+        QJsonObject roomJson;
+        roomJson["room_id"] = room["room_id"].toInt();
+        roomJson["room_name"] = room["room_name"].toString();
+        roomsArray.append(roomJson);
     }
 
     json["rooms"] = roomsArray;
-    qDebug() << "Fetched rooms:" << QString(QJsonDocument(json).toJson(QJsonDocument::Compact));
     socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
 
+void ChatClientHandler::handleFetchUsersInRoom(int roomId) {
+    QVector<QVariantMap> users = chatServer->fetchUsersInRoom(roomId);
+    QJsonObject json;
+    json["type"] = "usersInRoom";
+    QJsonArray usersArray;
+
+    for (const auto& user : users) {
+        if (!user.contains("user_id") || !user.contains("username")) {
+            qDebug() << "Room data is missing 'user_id' or 'username':" << user;
+            return;
+        }
+        QJsonObject userJson;
+        userJson["user_id"] = user["user_id"].toInt();
+        userJson["username"] = user["username"].toString();
+        usersArray.append(userJson);
+    }
+
+    json["users"] = usersArray;
+    socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
+}
 
 void ChatClientHandler::handleCreateRoom(const QString& roomName) {
     bool success = chatServer->createRoom(roomName, userId);

@@ -112,6 +112,33 @@ QVector<QVariantMap> ChatServer::fetchJoinedRooms(int userId)
     return rooms;
 }
 
+QVector<QVariantMap> ChatServer::fetchUsersInRoom(int roomId)
+{
+    QSqlQuery query(m_db);
+
+    QString queryStr = DbUtils::loadQueryFromFile("FETCH_USERS_IN_ROOM", USER_ROOM_QUERY_FILE);
+    if (queryStr.isEmpty()) {
+        return {};
+    }
+
+    query.prepare(queryStr);
+    query.bindValue(":room_id", roomId);
+
+    if (!query.exec()) {
+        qDebug() << "Failed to fetch users in room:" << query.lastError().text();
+        return {};
+    }
+
+    QVector<QVariantMap> users;
+    while (query.next()) {
+        QVariantMap user;
+        user["user_id"] = query.value("user_id");
+        user["username"] = query.value("username");
+        users.append(user);
+    }
+    return users;
+}
+
 bool ChatServer::createRoom(const QString& roomName, int userId)
 {
     QSqlQuery query(m_db);

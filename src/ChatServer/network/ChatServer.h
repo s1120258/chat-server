@@ -23,6 +23,8 @@ public:
 	void createMessagesTable();
 
 	QVector<QVariantMap> fetchJoinedRooms(int userId);
+    QVector<QVariantMap> fetchUsersInRoom(int roomId);
+
     bool createRoom(const QString& roomName, int userId);
     bool joinRoom(int userId, int roomId);
     bool leaveRoom(int userId, int roomId);

@@ -10,7 +10,10 @@ ApplicationWindow {
     title: "Home"
 
     Column {
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
 
         ListView {
             id: roomList
@@ -33,7 +36,10 @@ ApplicationWindow {
                     onClicked: {
                         console.log("Chat Room clicked, Name: " + model.name);
                         // Open chat room window
-                        Utils.loadWindow(homeWindow, "ChatRoom", { roomName: model.name, roomId: model.roomId });
+                        Utils.loadWindow(homeWindow, "ChatRoom", {
+                            roomName: model.name,
+                            roomId: model.roomId
+                        });
                     }
                 }
             }
@@ -61,7 +67,7 @@ ApplicationWindow {
             for (var i = 0; i < rooms.length; ++i) {
                 roomList.model.append({
                     "name": Utils.getJsonValue(rooms[i], "room_name"),
-                    "roomId": Utils.getJsonValue(rooms[i], "room_id")
+                    "roomId": parseInt(Utils.getJsonValue(rooms[i], "room_id"), 10)
                 });
             }
         }
