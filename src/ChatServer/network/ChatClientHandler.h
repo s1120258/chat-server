@@ -5,13 +5,12 @@
 #include <QObject>
 
 class ChatServer;
-class UserAuth;
 
 class ChatClientHandler : public QObject {
     Q_OBJECT
 
 public:
-    ChatClientHandler(qintptr socketDescriptor, ChatServer* chatServer, UserAuth* userAuth, QObject* parent = nullptr);
+    ChatClientHandler(qintptr socketDescriptor, ChatServer* chatServer, QObject* parent = nullptr);
 
 signals:
     void disconnected();
@@ -32,7 +31,6 @@ private:
 
     QTcpSocket* socket;
     ChatServer* chatServer;
-    UserAuth* userAuth;
     int userId;
 };
 

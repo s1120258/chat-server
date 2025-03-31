@@ -2,25 +2,19 @@
 #define CHATSERVER_H
 
 #include "ChatClientHandler.h"
-#include "auth/UserAuth.h"
 #include <QTcpServer>
 #include <QList>
 #include <QVector>
 #include <QVariantMap>
 
 class QSqlDatabase;
+class UserAuth;
 
 class ChatServer : public QTcpServer {
     Q_OBJECT
 
 public:
     ChatServer(QSqlDatabase& db, QObject* parent = nullptr);
-
-    void startServer(quint16 port);
-
-	void createRoomsTable();
-    void createUserRoomsTable();
-	void createMessagesTable();
 
 	QVector<QVariantMap> fetchJoinedRooms(int userId);
     QVector<QVariantMap> fetchUsersInRoom(int roomId);
@@ -32,10 +26,20 @@ public:
 
     QVector<QVariantMap> fetchMessages(int roomId);
 
+    bool registerUser(const QString& username, const QString& password);
+    bool authenticateUser(const QString& username, const QString& password);
+    int getUserId(const QString& username);
+
 protected:
     void incomingConnection(qintptr socketDescriptor) override;
 
 private:
+    void startServer(quint16 port);
+
+    void createRoomsTable();
+    void createUserRoomsTable();
+    void createMessagesTable();
+
     QSqlDatabase& m_db;
     UserAuth* userAuth;
     QList<ChatClientHandler*> clients;

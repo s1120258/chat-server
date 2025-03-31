@@ -3,9 +3,9 @@
 #include <QtSql/QSqlError>
 #include <QDebug>
 
-#include "auth/UserAuth.h"
 #include "network/ChatServer.h"
 #include "redis/RedisManager.h"
+#include "auth/UserAuth.h"
 #include "utils/DBUtils.h"
 
 int main(int argc, char *argv[])
@@ -14,20 +14,13 @@ int main(int argc, char *argv[])
 
     QSqlDatabase db;
     DbUtils::connectToPostgreSQL(db);
-
-	UserAuth auth(db);
-	auth.createUsersTable();
-
     ChatServer chatServer(db);
-    chatServer.createRoomsTable();
-    chatServer.createUserRoomsTable();
-    //chatServer.createMessagesTable();
-    chatServer.startServer(12345);
 
 	RedisManager redisManager;
     redisManager.connectToRedis();
 	redisManager.subscribeToChannel("chat");
 
+    //UserAuth auth(db);
     //auth.registerUser("u01", "p01");
     //auth.registerUser("u02", "p02");
     //chatServer.createRoom("r01");

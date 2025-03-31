@@ -1,4 +1,6 @@
 #include "ChatServer.h"
+#include "redis/RedisManager.h"
+#include "auth/UserAuth.h"
 #include "utils/DbUtils.h"
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
@@ -11,7 +13,14 @@ namespace {
     const QString MESSAGE_QUERY_FILE = "queries/message_queries.sql";
 };
 
-ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), m_db(db), userAuth(new UserAuth(db)) {}
+ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), m_db(db), userAuth(new UserAuth(db)) {
+    userAuth->createUsersTable();
+    createRoomsTable();
+	createUserRoomsTable();
+	createMessagesTable();
+
+    startServer(12345);
+}
 
 void ChatServer::startServer(quint16 port) {
     if (this->listen(QHostAddress::Any, port)) {
@@ -23,7 +32,7 @@ void ChatServer::startServer(quint16 port) {
 }
 
 void ChatServer::incomingConnection(qintptr socketDescriptor) {
-    ChatClientHandler* clientHandler = new ChatClientHandler(socketDescriptor, this, userAuth, this);
+    ChatClientHandler* clientHandler = new ChatClientHandler(socketDescriptor, this, this);
     clients.append(clientHandler);
     connect(clientHandler, &ChatClientHandler::disconnected, this, [this, clientHandler]() {
         clients.removeAll(clientHandler);
@@ -248,4 +257,19 @@ QVector<QVariantMap> ChatServer::fetchMessages(int roomId)
         messages.append(message);
     }
     return messages;
+}
+
+bool ChatServer::registerUser(const QString& username, const QString& password)
+{
+	return userAuth->registerUser(username, password);
+}
+
+bool ChatServer::authenticateUser(const QString& username, const QString& password)
+{
+	return userAuth->authenticateUser(username, password);
+}
+
+int ChatServer::getUserId(const QString& username)
+{
+	return userAuth->getUserId(username);
 }

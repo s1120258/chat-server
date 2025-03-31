@@ -1,13 +1,12 @@
 #include "ChatClientHandler.h"
 #include "ChatServer.h"
-#include "auth/UserAuth.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
 
-ChatClientHandler::ChatClientHandler(qintptr socketDescriptor, ChatServer* chatServer, UserAuth* userAuth, QObject* parent)
-    : QObject(parent), socket(new QTcpSocket(this)), chatServer(chatServer), userAuth(userAuth) {
+ChatClientHandler::ChatClientHandler(qintptr socketDescriptor, ChatServer* chatServer, QObject* parent)
+    : QObject(parent), socket(new QTcpSocket(this)), chatServer(chatServer) {
     socket->setSocketDescriptor(socketDescriptor);
     connect(socket, &QTcpSocket::readyRead, this, &ChatClientHandler::onReadyRead);
     connect(socket, &QTcpSocket::disconnected, this, &ChatClientHandler::onDisconnected);
@@ -55,12 +54,12 @@ void ChatClientHandler::onDisconnected() {
 }
 
 void ChatClientHandler::handleLogin(const QString& username, const QString& password) {
-    bool success = userAuth->authenticateUser(username, password);
+    bool success = chatServer->authenticateUser(username, password);
     QJsonObject json;
     json["type"] = "loginResult";
     json["success"] = success;
     if (success) {
-        userId = userAuth->getUserId(username);
+        userId = chatServer->getUserId(username);
     }
     else {
         json["errorMessage"] = "Invalid username or password";
