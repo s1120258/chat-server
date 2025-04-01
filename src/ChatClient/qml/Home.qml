@@ -9,11 +9,27 @@ ApplicationWindow {
     height: 400
     title: "Home"
 
+    property int userId: -1
+    property string username: ""
+
     Column {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+
+        Row {
+            width: parent.width
+            height: 20
+            spacing: 10
+
+            Text {
+                text: "Hello " + username
+                font.pixelSize: 20
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
 
         ListView {
             id: roomList
@@ -38,7 +54,8 @@ ApplicationWindow {
                         // Open chat room window
                         Utils.loadWindow(homeWindow, "ChatRoom", {
                             roomName: model.name,
-                            roomId: model.roomId
+                            roomId: model.roomId,
+                            userId: homeWindow.userId
                         });
                     }
                 }

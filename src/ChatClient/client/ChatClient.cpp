@@ -20,8 +20,9 @@ void ChatClient::onReadyRead() {
 
     if (json["type"] == "loginResult") {
         bool success = json["success"].toBool();
+        int userId = json["userId"].toInt();
         QString errorMessage = json["errorMessage"].toString();
-        emit loginResult(success, errorMessage);
+        emit loginResult(success, userId, errorMessage);
     }
     else if (json["type"] == "joinedRooms") {
         QJsonArray roomsArray = json["rooms"].toArray();
@@ -66,8 +67,8 @@ void ChatClient::onReadyRead() {
     }
     else if (json["type"] == "userInvited") {
         bool success = json["success"].toBool();
-        QString userName = json["username"].toString();
-        emit userInvited(success, userName);
+        QString username = json["username"].toString();
+        emit userInvited(success, username);
     }
     else if (json["type"] == "messages") {
         QJsonArray messagesArray = json["messages"].toArray();
@@ -89,8 +90,9 @@ void ChatClient::onReadyRead() {
     }
     else if (json["type"] == "messageSent") {
         bool success = json["success"].toBool();
+        QString username = json["username"].toString();
         QString message = json["content"].toString();
-        emit messageReceived(json["content"].toString());
+        emit messageReceived(success, username, message);
     }
     else {
         qDebug() << "Received unknown data:" << data;
@@ -157,10 +159,11 @@ void ChatClient::fetchMessages(int roomId) {
     }
 }
 
-void ChatClient::sendMessage(int roomId, const QString& message) {
+void ChatClient::sendMessage(int userId, int roomId, const QString& message) {
     if (socket.state() == QAbstractSocket::ConnectedState) {
         QJsonObject json;
         json["type"] = "sendMessage";
+        json["userId"] = userId;
         json["roomId"] = roomId;
         json["content"] = message;
         socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));

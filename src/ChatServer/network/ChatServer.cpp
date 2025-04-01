@@ -12,7 +12,7 @@ namespace {
     const QString USER_ROOM_QUERY_FILE = "queries/user_room_queries.sql";
     const QString MESSAGE_QUERY_FILE = "queries/message_queries.sql";
 
-	const QString CHAT_CHANNEL = "chat_channel";
+	const QString CHANNEL_NAME_PREFIX = "chat_room_";
 };
 
 ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), m_db(db), userAuth(new UserAuth(db)), redisManager(new RedisManager(this)) {
@@ -22,9 +22,7 @@ ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), 
 	createMessagesTable();
     startServer(12345);
 
-    // Subscribe to a Redis channel for real-time messaging
     redisManager->connectToRedis();
-    redisManager->subscribeToChannel(CHAT_CHANNEL);
     connect(redisManager, &RedisManager::messageReceived, this, &ChatServer::onMessageReceived);
 }
 
@@ -190,6 +188,7 @@ bool ChatServer::joinRoom(int userId, int roomId) {
         return false;
     }
 
+
     query.prepare(queryStr);
     query.bindValue(":user_id", userId);
     query.bindValue(":room_id", roomId);
@@ -198,6 +197,10 @@ bool ChatServer::joinRoom(int userId, int roomId) {
         qDebug() << "Database query error:" << query.lastError().text();
         return false;
     }
+
+    // Subscribe to the Redis channel for the room
+    QString channel = QString(CHANNEL_NAME_PREFIX + "%1").arg(roomId);
+    redisManager->subscribeToChannel(channel);
 
     qDebug() << "User " << userId << " joined room " << roomId << " successfully!";
 
@@ -266,8 +269,9 @@ QVector<QVariantMap> ChatServer::fetchMessages(int roomId) {
 
 bool ChatServer::sendMessage(int userId, int roomId, const QString& message)
 {
-	// Publish the message to the Redis channel
-	publishMessage(CHAT_CHANNEL, message);
+    // Publish the message to the Redis channel
+    QString channel = QString(CHANNEL_NAME_PREFIX + "%1").arg(roomId);
+    publishMessage(channel, message);
 
 	// Save the message to the database
 	QSqlQuery query(m_db);
@@ -277,8 +281,8 @@ bool ChatServer::sendMessage(int userId, int roomId, const QString& message)
 	}
 
 	query.prepare(queryStr);
+    query.bindValue(":user_id", userId);
 	query.bindValue(":room_id", roomId);
-	query.bindValue(":user_id", userId);
 	query.bindValue(":message", message);
 
 	if (!query.exec()) {
@@ -292,9 +296,11 @@ bool ChatServer::sendMessage(int userId, int roomId, const QString& message)
 void ChatServer::onMessageReceived(const QString& channel, const QString& message) {
     qDebug() << "Message received from Redis channel:" << channel << message;
 
-    // Broadcast the message to all connected clients
+    // Broadcast the message to all connected clients in the room
     for (ChatClientHandler* client : clients) {
-        client->sendMessage(message);
+        if (client->isInRoom(channel)) {
+            client->sendMessage(message);
+        }
     }
 }
 
@@ -313,7 +319,12 @@ bool ChatServer::authenticateUser(const QString& username, const QString& passwo
 	return userAuth->authenticateUser(username, password);
 }
 
-int ChatServer::getUserId(const QString& username)
+int ChatServer::getUserId(const QString& username) const
 {
 	return userAuth->getUserId(username);
+}
+
+QString ChatServer::getUserName(int userId) const
+{
+	return userAuth->getUserName(userId);
 }

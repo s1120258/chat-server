@@ -16,16 +16,16 @@ public:
     Q_INVOKABLE void fetchUsersInRoom(int roomId);
     Q_INVOKABLE void inviteUserToRoom(const QString& username, int roomId);
     Q_INVOKABLE void fetchMessages(int roomId);
-    Q_INVOKABLE void sendMessage(int roomId, const QString& message);
+    Q_INVOKABLE void sendMessage(int userId, int roomId, const QString& message);
 
 signals:
-    void loginResult(bool success, const QString& errorMessage);
+    void loginResult(bool success, int userId, const QString& errorMessage);
     void joinedRoomsReceived(const QStringList& rooms);
     void roomCreated(bool success, const QString& roomName);
     void usersInRoomReceived(const QStringList& users);
-    void userInvited(bool success, const QString& userName);
+    void userInvited(bool success, const QString& username);
     void messagesReceived(const QStringList& messages);
-    void messageReceived(const QString& message);
+    void messageReceived(bool success, const QString username, const QString& message);
 
 private slots:
     void onReadyRead();

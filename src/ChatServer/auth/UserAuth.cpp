@@ -91,7 +91,7 @@ bool UserAuth::authenticateUser(const QString& username, const QString& password
     return false;
 }
 
-int UserAuth::getUserId(const QString& username) {
+int UserAuth::getUserId(const QString& username) const {
     QSqlQuery query(m_db);
     QString queryStr = DbUtils::loadQueryFromFile("GET_USER_ID", USER_QUERY_FILE);
     if (queryStr.isEmpty()) {
@@ -111,4 +111,26 @@ int UserAuth::getUserId(const QString& username) {
     }
 
     return -1;
+}
+
+QString UserAuth::getUserName(int userId) const {
+    QSqlQuery query(m_db);
+    QString queryStr = DbUtils::loadQueryFromFile("GET_USER_NAME", USER_QUERY_FILE);
+    if (queryStr.isEmpty()) {
+        return "";
+    }
+
+    query.prepare(queryStr);
+    query.bindValue(":id", userId);
+
+    if (!query.exec()) {
+        qDebug() << "Database query error:" << query.lastError().text();
+        return "";
+    }
+
+    if (query.next()) {
+        return query.value(0).toString();
+    }
+
+    return "";
 }

@@ -48,7 +48,10 @@ ApplicationWindow {
             if (success) {
                 console.error("Logged in successfully");
                 // Open the chat room window
-                Utils.loadWindow(loginWindow, "Home");
+                Utils.loadWindow(loginWindow, "Home", {
+                    userId: userId,
+                    username: usernameField.text
+                });
             } else {
                 console.error("Login failed");
                 errorMessage.text = errorMessage;

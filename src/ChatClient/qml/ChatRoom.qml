@@ -11,6 +11,7 @@ ApplicationWindow {
 
     property string roomName: ""
     property int roomId: -1
+    property int userId: -1
     property string userNamesString: ""
     property var userIds: []
 
@@ -74,7 +75,7 @@ ApplicationWindow {
                 text: "Send"
                 onClicked: {
                     console.log("Send button clicked");
-                    chatClient.sendMessage(roomId, messageField.text);
+                    chatClient.sendMessage(userId, roomId, messageField.text);
                     messageField.text = "";
                 }
             }
@@ -119,20 +120,25 @@ ApplicationWindow {
             userNamesString = userNames.join(", ");
         }
 
-        function onMessageReceived(message) {
-            messageList.model.append({ "message": message });
-        }
-
         function onMessagesReceived(messages) {
             messageList.model.clear();
             for (var i = 0; i < messages.length; ++i) {
-                console.log("AAA: " + Utils.getJsonValue(messages[i], "username") + Utils.getJsonValue(messages[i], "message"));
                 messageList.model.append({
                     "username": Utils.getJsonValue(messages[i], "username"),
                     "message": Utils.getJsonValue(messages[i], "message")
                 });
             }
         }
+
+       function onMessageReceived(success, username, message) {
+            if (success) {
+                messageList.model.append({ "username": username, "message": message });
+            } else {
+                console.error("Failed to send message: " + messageField.text);
+                // errorMessage.text = "Failed to send message: " + messageField.text;
+                // errorMessage.visible = true;
+            }
+       }
     }
 }
 

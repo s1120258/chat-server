@@ -32,7 +32,9 @@ public:
 
     bool registerUser(const QString& username, const QString& password);
     bool authenticateUser(const QString& username, const QString& password);
-    int getUserId(const QString& username);
+
+    int getUserId(const QString& username) const;
+    QString getUserName(int userId) const;
 
 protected:
     void incomingConnection(qintptr socketDescriptor) override;

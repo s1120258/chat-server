@@ -32,3 +32,7 @@ AUTHENTICATE_USER =
 -- Get user ID
 GET_USER_ID = 
     SELECT id FROM users WHERE username = :username;
+
+-- Get user name
+GET_USER_NAME = 
+    SELECT username FROM users WHERE id = :id;

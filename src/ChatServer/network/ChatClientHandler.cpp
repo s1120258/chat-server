@@ -20,6 +20,14 @@ void ChatClientHandler::sendMessage(const QString& message)
 	socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
 
+bool ChatClientHandler::isInRoom(const QString& channel) const {
+    return subscribedChannels.contains(channel);
+}
+
+void ChatClientHandler::subscribeToRoom(const QString& channel) {
+    subscribedChannels.insert(channel);
+}
+
 void ChatClientHandler::onReadyRead() {
     QByteArray data = socket->readAll();
 
@@ -67,10 +75,11 @@ void ChatClientHandler::onReadyRead() {
             int roomId = json["roomId"].toInt();
             handleFetchMessages(roomId);
         }
-        else if (type == "message") {
+        else if (type == "sendMessage") {
+            int userId = json["userId"].toInt();
             int roomId = json["roomId"].toInt();
             QString message = json["content"].toString();
-            handleSendMessage(roomId, message);
+            handleSendMessage(userId, roomId, message);
         }
         else {
             qDebug() << "Received unknown data:" << jsonObject;
@@ -91,6 +100,7 @@ void ChatClientHandler::handleLogin(const QString& username, const QString& pass
     json["success"] = success;
     if (success) {
         userId = chatServer->getUserId(username);
+        json["userId"] = userId;
     }
     else {
         json["errorMessage"] = "Invalid username or password";
@@ -179,11 +189,13 @@ void ChatClientHandler::handleFetchMessages(int roomId) {
     socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
 
-void ChatClientHandler::handleSendMessage(int roomId, const QString& message) {
+void ChatClientHandler::handleSendMessage(int userId, int roomId, const QString& message) {
 	bool success = chatServer->sendMessage(userId, roomId, message);
 	QJsonObject json;
 	json["type"] = "messageSent";
 	json["success"] = success;
+    json["username"] = chatServer->getUserName(userId);
     json["content"] = message;
+    qDebug() << "Sent message:" << QJsonDocument(json).toJson(QJsonDocument::Compact);
 	socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
