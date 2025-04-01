@@ -94,6 +94,11 @@ void ChatClient::onReadyRead() {
         QString message = json["content"].toString();
         emit messageReceived(success, username, message);
     }
+    else if (json["type"] == "message") {
+        QString username = json["username"].toString();
+        QString message = json["content"].toString();
+        emit messageReceived(true, username, message);
+    }
     else {
         qDebug() << "Received unknown data:" << data;
     }

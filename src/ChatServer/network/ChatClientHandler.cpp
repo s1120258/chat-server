@@ -12,12 +12,13 @@ ChatClientHandler::ChatClientHandler(qintptr socketDescriptor, ChatServer* chatS
     connect(socket, &QTcpSocket::disconnected, this, &ChatClientHandler::onDisconnected);
 }
 
-void ChatClientHandler::sendMessage(const QString& message)
+void ChatClientHandler::sendMessage(const QString& username, const QString& message)
 {
 	QJsonObject json;
 	json["type"] = "message";
-	json["content"] = message;
-	socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
+    json["username"] = username;
+    json["content"] = message;
+    socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
 
 bool ChatClientHandler::isInRoom(const QString& channel) const {
@@ -170,7 +171,6 @@ void ChatClientHandler::handleInviteUserToRoom(const QString& username, int room
 }
 
 void ChatClientHandler::handleFetchMessages(int roomId) {
-    qDebug() << "Fetching messages for room ID:" << roomId;
     QVector<QVariantMap> messages = chatServer->fetchMessages(roomId);
     QJsonObject json;
     json["type"] = "messages";
@@ -185,7 +185,7 @@ void ChatClientHandler::handleFetchMessages(int roomId) {
     }
 
     json["messages"] = messagesArray;
-    qDebug() << "Fetched messages:" << QJsonDocument(json).toJson(QJsonDocument::Compact);
+    //qDebug() << "Fetched messages:" << QJsonDocument(json).toJson(QJsonDocument::Compact);
     socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
 
@@ -196,6 +196,6 @@ void ChatClientHandler::handleSendMessage(int userId, int roomId, const QString&
 	json["success"] = success;
     json["username"] = chatServer->getUserName(userId);
     json["content"] = message;
-    qDebug() << "Sent message:" << QJsonDocument(json).toJson(QJsonDocument::Compact);
+    //qDebug() << "Sent message:" << QJsonDocument(json).toJson(QJsonDocument::Compact);
 	socket->write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }

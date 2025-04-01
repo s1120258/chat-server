@@ -271,7 +271,8 @@ bool ChatServer::sendMessage(int userId, int roomId, const QString& message)
 {
     // Publish the message to the Redis channel
     QString channel = QString(CHANNEL_NAME_PREFIX + "%1").arg(roomId);
-    publishMessage(channel, message);
+	QString username = getUserName(userId);
+    publishMessage(channel, username, message);
 
 	// Save the message to the database
 	QSqlQuery query(m_db);
@@ -293,20 +294,23 @@ bool ChatServer::sendMessage(int userId, int roomId, const QString& message)
 	return true;
 }
 
-void ChatServer::onMessageReceived(const QString& channel, const QString& message) {
-    qDebug() << "Message received from Redis channel:" << channel << message;
+void ChatServer::onMessageReceived(const QString& channel, const QString& fullMessage) {
+    qDebug() << "Message received from Redis channel:" << channel << fullMessage;
 
     // Broadcast the message to all connected clients in the room
     for (ChatClientHandler* client : clients) {
         if (client->isInRoom(channel)) {
-            client->sendMessage(message);
+			QString username = fullMessage.split(": ").at(0);
+			QString message = fullMessage.split(": ").at(1);
+            client->sendMessage(username, message);
         }
     }
 }
 
-void ChatServer::publishMessage(const QString& channel, const QString& message)
+void ChatServer::publishMessage(const QString& channel, const QString& username, const QString& message)
 {
-    redisManager->publishMessage(channel, message);
+	QString fullMessage = QString("%1: %2").arg(username, message);
+    redisManager->publishMessage(channel, fullMessage);
 }
 
 bool ChatServer::registerUser(const QString& username, const QString& password)

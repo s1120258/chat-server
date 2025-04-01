@@ -12,7 +12,7 @@ class ChatClientHandler : public QObject {
 public:
     ChatClientHandler(qintptr socketDescriptor, ChatServer* chatServer, QObject* parent = nullptr);
 
-    void sendMessage(const QString& message);
+    void sendMessage(const QString& username, const QString& message);
 
     bool isInRoom(const QString& channel) const;
     void subscribeToRoom(const QString& channel);

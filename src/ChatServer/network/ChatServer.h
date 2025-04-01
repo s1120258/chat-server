@@ -28,7 +28,7 @@ public:
     QVector<QVariantMap> fetchMessages(int roomId);
 	bool sendMessage(int userId, int roomId, const QString& message);
     void onMessageReceived(const QString& channel, const QString& message);
-    void publishMessage(const QString& channel, const QString& message);
+    void publishMessage(const QString& channel, const QString& username, const QString& message);
 
     bool registerUser(const QString& username, const QString& password);
     bool authenticateUser(const QString& username, const QString& password);
