@@ -2,11 +2,9 @@
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
 #include <QDebug>
-
 #include "network/ChatServer.h"
-#include "redis/RedisManager.h"
-#include "auth/UserAuth.h"
 #include "utils/DBUtils.h"
+//#include "auth/UserAuth.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,10 +14,6 @@ int main(int argc, char *argv[])
     DbUtils::connectToPostgreSQL(db);
     ChatServer chatServer(db);
 
-	RedisManager redisManager;
-    redisManager.connectToRedis();
-	redisManager.subscribeToChannel("chat");
-
     //UserAuth auth(db);
     //auth.registerUser("u01", "p01");
     //auth.registerUser("u02", "p02");
@@ -28,6 +22,7 @@ int main(int argc, char *argv[])
     //chatServer.joinRoom(1, 1);
     //chatServer.joinRoom(2, 1);
     //chatServer.joinRoom(1, 2);
+    //chatServer.sendMessage(1, 1, "m01");
 
     return a.exec();
 }

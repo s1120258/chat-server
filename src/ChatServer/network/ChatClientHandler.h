@@ -12,6 +12,8 @@ class ChatClientHandler : public QObject {
 public:
     ChatClientHandler(qintptr socketDescriptor, ChatServer* chatServer, QObject* parent = nullptr);
 
+    void sendMessage(const QString& message);
+
 signals:
     void disconnected();
 
@@ -23,11 +25,13 @@ private:
     void handleLogin(const QString& username, const QString& password);
 
     void handleFetchJoinedRooms();
-    void handleFetchUsersInRoom(int roomId);
-
     void handleCreateRoom(const QString& roomname);
+
+    void handleFetchUsersInRoom(int roomId);
     void handleInviteUserToRoom(const QString& username, int roomId);
-    void handleMessage(const QString& message);
+
+    void handleFetchMessages(int roomId);
+    void handleSendMessage(int roomId, const QString& message);
 
     QTcpSocket* socket;
     ChatServer* chatServer;

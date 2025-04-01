@@ -29,3 +29,6 @@ FETCH_MESSAGES =
     JOIN users u ON m.user_id = u.id
     WHERE m.room_id = :room_id
     ORDER BY m.created_at ASC
+
+INSERT_MESSAGE = 
+    INSERT INTO messages (room_id, user_id, message) VALUES (:room_id, :user_id, :message);

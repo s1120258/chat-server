@@ -41,6 +41,11 @@ void ChatClient::onReadyRead() {
         }
         emit joinedRoomsReceived(rooms);
     }
+    else if (json["type"] == "roomCreated") {
+        bool success = json["success"].toBool();
+        QString roomName = json["roomName"].toString();
+        emit roomCreated(success, roomName);
+    }
     else if (json["type"] == "usersInRoom") {
         QJsonArray usersArray = json["users"].toArray();
         QStringList users;
@@ -59,17 +64,32 @@ void ChatClient::onReadyRead() {
         }
         emit usersInRoomReceived(users);
     }
-    else if (json["type"] == "roomCreated") {
-        bool success = json["success"].toBool();
-        QString roomName = json["roomName"].toString();
-        emit roomCreated(success, roomName);
-    }
     else if (json["type"] == "userInvited") {
         bool success = json["success"].toBool();
         QString userName = json["username"].toString();
         emit userInvited(success, userName);
     }
-    else if (json["type"] == "message") {
+    else if (json["type"] == "messages") {
+        QJsonArray messagesArray = json["messages"].toArray();
+        QStringList messages;
+        for (const QJsonValue& value : messagesArray) {
+            if (value.isObject()) {
+                QJsonObject messageObject = value.toObject();
+                QJsonObject messageJson;
+                messageJson["username"] = messageObject["username"].toString();
+                messageJson["message"] = messageObject["message"].toString();
+                QString messageJsonString = QString(QJsonDocument(messageJson).toJson(QJsonDocument::Compact));
+                messages.append(messageJsonString);
+            }
+            else {
+                qDebug() << "Message value is not an object";
+            }
+        }
+        emit messagesReceived(messages);
+    }
+    else if (json["type"] == "messageSent") {
+        bool success = json["success"].toBool();
+        QString message = json["content"].toString();
         emit messageReceived(json["content"].toString());
     }
     else {
@@ -99,6 +119,15 @@ void ChatClient::fetchJoinedRooms() {
     }
 }
 
+void ChatClient::createRoom(const QString& roomName) {
+    if (socket.state() == QAbstractSocket::ConnectedState) {
+        QJsonObject json;
+        json["type"] = "createRoom";
+        json["roomName"] = roomName;
+        socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
+    }
+}
+
 void ChatClient::fetchUsersInRoom(int roomId)
 {
 	if (socket.state() == QAbstractSocket::ConnectedState) {
@@ -107,15 +136,6 @@ void ChatClient::fetchUsersInRoom(int roomId)
 		json["roomId"] = roomId;
 		socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
 	}
-}
-
-void ChatClient::createRoom(const QString& roomName) {
-    if (socket.state() == QAbstractSocket::ConnectedState) {
-        QJsonObject json;
-        json["type"] = "createRoom";
-        json["roomName"] = roomName;
-        socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
-    }
 }
 
 void ChatClient::inviteUserToRoom(const QString& username, int roomId) {
@@ -128,10 +148,20 @@ void ChatClient::inviteUserToRoom(const QString& username, int roomId) {
     }
 }
 
-void ChatClient::sendMessage(const QString& message) {
+void ChatClient::fetchMessages(int roomId) {
     if (socket.state() == QAbstractSocket::ConnectedState) {
         QJsonObject json;
-        json["type"] = "message";
+        json["type"] = "fetchMessages";
+        json["roomId"] = roomId;
+        socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
+    }
+}
+
+void ChatClient::sendMessage(int roomId, const QString& message) {
+    if (socket.state() == QAbstractSocket::ConnectedState) {
+        QJsonObject json;
+        json["type"] = "sendMessage";
+        json["roomId"] = roomId;
         json["content"] = message;
         socket.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
     }

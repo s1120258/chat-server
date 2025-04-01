@@ -1,6 +1,6 @@
 #include "ChatServer.h"
-#include "redis/RedisManager.h"
 #include "auth/UserAuth.h"
+#include "redis/RedisManager.h"
 #include "utils/DbUtils.h"
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
@@ -11,15 +11,21 @@ namespace {
     const QString ROOM_QUERY_FILE = "queries/room_queries.sql";
     const QString USER_ROOM_QUERY_FILE = "queries/user_room_queries.sql";
     const QString MESSAGE_QUERY_FILE = "queries/message_queries.sql";
+
+	const QString CHAT_CHANNEL = "chat_channel";
 };
 
-ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), m_db(db), userAuth(new UserAuth(db)) {
+ChatServer::ChatServer(QSqlDatabase& db, QObject* parent) : QTcpServer(parent), m_db(db), userAuth(new UserAuth(db)), redisManager(new RedisManager(this)) {
     userAuth->createUsersTable();
     createRoomsTable();
 	createUserRoomsTable();
 	createMessagesTable();
-
     startServer(12345);
+
+    // Subscribe to a Redis channel for real-time messaging
+    redisManager->connectToRedis();
+    redisManager->subscribeToChannel(CHAT_CHANNEL);
+    connect(redisManager, &RedisManager::messageReceived, this, &ChatServer::onMessageReceived);
 }
 
 void ChatServer::startServer(quint16 port) {
@@ -231,13 +237,12 @@ bool ChatServer::leaveRoom(int userId, int roomId)
     return true;
 }
 
-QVector<QVariantMap> ChatServer::fetchMessages(int roomId)
-{
+QVector<QVariantMap> ChatServer::fetchMessages(int roomId) {
     QSqlQuery query(m_db);
 
     QString queryStr = DbUtils::loadQueryFromFile("FETCH_MESSAGES", MESSAGE_QUERY_FILE);
-	if (queryStr.isEmpty()) {
-		return {};
+    if (queryStr.isEmpty()) {
+        return {};
     }
 
     query.prepare(queryStr);
@@ -257,6 +262,45 @@ QVector<QVariantMap> ChatServer::fetchMessages(int roomId)
         messages.append(message);
     }
     return messages;
+}
+
+bool ChatServer::sendMessage(int userId, int roomId, const QString& message)
+{
+	// Publish the message to the Redis channel
+	publishMessage(CHAT_CHANNEL, message);
+
+	// Save the message to the database
+	QSqlQuery query(m_db);
+	QString queryStr = DbUtils::loadQueryFromFile("INSERT_MESSAGE", MESSAGE_QUERY_FILE);
+	if (queryStr.isEmpty()) {
+		return false;
+	}
+
+	query.prepare(queryStr);
+	query.bindValue(":room_id", roomId);
+	query.bindValue(":user_id", userId);
+	query.bindValue(":message", message);
+
+	if (!query.exec()) {
+		qDebug() << "Failed to insert message:" << query.lastError().text();
+        return false;
+	}
+
+	return true;
+}
+
+void ChatServer::onMessageReceived(const QString& channel, const QString& message) {
+    qDebug() << "Message received from Redis channel:" << channel << message;
+
+    // Broadcast the message to all connected clients
+    for (ChatClientHandler* client : clients) {
+        client->sendMessage(message);
+    }
+}
+
+void ChatServer::publishMessage(const QString& channel, const QString& message)
+{
+    redisManager->publishMessage(channel, message);
 }
 
 bool ChatServer::registerUser(const QString& username, const QString& password)

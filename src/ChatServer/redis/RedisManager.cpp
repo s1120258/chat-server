@@ -35,7 +35,7 @@ void RedisManager::subscribeToChannel(const QString& channel)
 		auto subscriber = redis.subscriber();
 		subscriber.on_message([this](const std::string& channel, const std::string& message) {
 			emit messageReceived(QString::fromStdString(channel), QString::fromStdString(message));
-			});
+		});
 		subscriber.subscribe(channel.toStdString());
 	}
 	catch (const std::exception& e) {

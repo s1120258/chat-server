@@ -6,6 +6,9 @@
 # Build folder
 build
 
+# temporary folder
+enc_temp_folder
+
 # Database
 *.db
 

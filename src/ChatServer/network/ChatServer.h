@@ -9,6 +9,7 @@
 
 class QSqlDatabase;
 class UserAuth;
+class RedisManager;
 
 class ChatServer : public QTcpServer {
     Q_OBJECT
@@ -25,6 +26,9 @@ public:
     bool leaveRoom(int userId, int roomId);
 
     QVector<QVariantMap> fetchMessages(int roomId);
+	bool sendMessage(int userId, int roomId, const QString& message);
+    void onMessageReceived(const QString& channel, const QString& message);
+    void publishMessage(const QString& channel, const QString& message);
 
     bool registerUser(const QString& username, const QString& password);
     bool authenticateUser(const QString& username, const QString& password);
@@ -41,8 +45,9 @@ private:
     void createMessagesTable();
 
     QSqlDatabase& m_db;
-    UserAuth* userAuth;
     QList<ChatClientHandler*> clients;
+    UserAuth* userAuth;
+    RedisManager* redisManager;
 };
 
 #endif // CHATSERVER_H

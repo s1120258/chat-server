@@ -30,7 +30,7 @@ ApplicationWindow {
             }
         }
 
-        Row {
+        /* Row {
             width: parent.width
             height: 80
             spacing: 10
@@ -40,15 +40,15 @@ ApplicationWindow {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
             }
-        }
+        } */
 
         ListView {
             id: messageList
             anchors.fill: parent
             model: ListModel {
-                ListElement { name: "Message 1" }
-                ListElement { name: "Message 2" }
-                ListElement { name: "Message 3" }
+                ListElement { username: "User 1"; message: "Massage 1" }
+                ListElement { username: "User 2"; message: "Massage 2" }
+                ListElement { username: "User 3"; message: "Massage 3" }
             }
 
             delegate: Item {
@@ -56,7 +56,7 @@ ApplicationWindow {
                 height: 50
 
                 Text {
-                    text: model.message
+                    text: model.username + ": " + model.message
                     anchors.centerIn: parent
                 }
             }
@@ -74,7 +74,7 @@ ApplicationWindow {
                 text: "Send"
                 onClicked: {
                     console.log("Send button clicked");
-                    chatClient.sendMessage(messageField.text);
+                    chatClient.sendMessage(roomId, messageField.text);
                     messageField.text = "";
                 }
             }
@@ -102,8 +102,8 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        // Fetch users in room from the server
-        chatClient.fetchUsersInRoom(roomId);
+        // chatClient.fetchUsersInRoom(roomId);
+        chatClient.fetchMessages(roomId);
     }
 
     Connections {
@@ -121,6 +121,17 @@ ApplicationWindow {
 
         function onMessageReceived(message) {
             messageList.model.append({ "message": message });
+        }
+
+        function onMessagesReceived(messages) {
+            messageList.model.clear();
+            for (var i = 0; i < messages.length; ++i) {
+                console.log("AAA: " + Utils.getJsonValue(messages[i], "username") + Utils.getJsonValue(messages[i], "message"));
+                messageList.model.append({
+                    "username": Utils.getJsonValue(messages[i], "username"),
+                    "message": Utils.getJsonValue(messages[i], "message")
+                });
+            }
         }
     }
 }
